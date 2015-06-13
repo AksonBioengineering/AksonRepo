@@ -74,6 +74,8 @@
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
     <addaction name="action_Save_as"/>
+    <addaction name="separator"/>
+    <addaction name="action_Settings"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -88,6 +90,8 @@
    <addaction name="action_Open"/>
    <addaction name="action_Save"/>
    <addaction name="action_Save_as"/>
+   <addaction name="separator"/>
+   <addaction name="action_Settings"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Open">
@@ -136,6 +140,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_Settings">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Settings_24x24.png</normaloff>:/more24/Settings_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Settings</string>
    </property>
   </action>
  </widget>
