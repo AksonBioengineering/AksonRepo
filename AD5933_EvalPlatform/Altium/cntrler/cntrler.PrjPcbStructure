@@ -1,0 +1,7 @@
+Record=SheetSymbol|SourceDocument=sntrler.SchDoc|Designator=U_analog|SchDesignator=U_analog|FileName=analog.SchDoc|SymbolType=Normal|RawFileName=analog.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=sntrler.SchDoc|Designator=U_debug|SchDesignator=U_debug|FileName=debug.SchDoc|SymbolType=Normal|RawFileName=debug.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=sntrler.SchDoc|Designator=U_mcu|SchDesignator=U_mcu|FileName=mcu.SchDoc|SymbolType=Normal|RawFileName=mcu.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=sntrler.SchDoc|Designator=U_pots|SchDesignator=U_pots|FileName=pots.SchDoc|SymbolType=Normal|RawFileName=pots.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=sntrler.SchDoc|Designator=U_power|SchDesignator=U_power|FileName=power.SchDoc|SymbolType=Normal|RawFileName=power.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=sntrler.SchDoc|Designator=U_vizics|SchDesignator=U_vizics|FileName=vizics.SchDoc|SymbolType=Normal|RawFileName=vizics.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=TopLevelDocument|FileName=sntrler.SchDoc
