@@ -12,24 +12,71 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete appName;
 }
 
 QString MainWindow::getAppVersion()
 {
-    return QString("%1.%2.%3").arg(appVersion.ver8[2]).arg(appVersion.ver8[1]).arg(appVersion.ver8[0]) + " ";
+    return QString("%1.%2.%3").arg(m_appVersion.ver8[2]).arg(m_appVersion.ver8[1]).arg(m_appVersion.ver8[0]) + " ";
 }
 
 void MainWindow::initComponents()
 {
-    appVersion.ver8[2] = 1;         // Big new functionalities
-    appVersion.ver8[1] = 0;         // new functionalities
-    appVersion.ver8[0] = 0;         // changes to existing functionalities
-    setWindowTitle(appName + getAppVersion());
+    m_appVersion.ver8[2] = 1;         // Big new functionalities
+    m_appVersion.ver8[1] = 0;         // new functionalities
+    m_appVersion.ver8[0] = 0;         // changes to existing functionalities
+    setWindowTitle(APPNAME + getAppVersion());
+
+    QString settingsFile = QApplication::applicationDirPath() + "/settings.xms";
+    CSettingsManager::instance()->setFilePath(settingsFile);
 }
 
 void MainWindow::on_action_Settings_triggered()
 {
     CSettingsDialog* settingsDial = new CSettingsDialog(this);
-    settingsDial->show();
+    settingsDial->exec();
+}
+
+void MainWindow::on_action_New_triggered()
+{
+    EMeasures_t* newMeasure = new EMeasures_t;
+    CNewProjectDialog newDial(newMeasure, this);
+
+    if (newDial.exec())
+    {
+        qDebug() << "selected measure:" << (int)*newMeasure;
+
+        switch (*newMeasure)
+        {
+            case EMeasures_t::eEIS:
+            {
+                CGenericProject* test = new CEisProject();
+                ui->tbMain->addTab(test, "Untitled*");
+                break;
+            }
+
+            default:
+            {
+                qWarning() << "Choosen unknown measure method, forgot to add?";
+            }
+        }
+    }
+
+    delete newMeasure;
+}
+
+void MainWindow::on_tbMain_tabCloseRequested(int index)
+{
+    qDebug() << "Close request " << index;
+    delete  ui->tbMain->widget(index);
+    //ui->tbMain->removeTab(index);
+}
+
+void MainWindow::on_tbMain_currentChanged(int index)
+{
+    qDebug() << "current:" << ui->tbMain->widget(index)->metaObject()->className();
+}
+
+void MainWindow::on_tbMain_objectNameChanged(const QString &objectName)
+{
+    qDebug() << "Object name changed" << objectName;
 }

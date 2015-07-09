@@ -16,43 +16,25 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QTabWidget" name="tbMethods">
-      <property name="currentIndex">
-       <number>0</number>
+     <widget class="QTabWidget" name="tbMain">
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
       </property>
-      <widget class="QWidget" name="tabEis">
-       <attribute name="title">
-        <string>EIS</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QCustomPlot" name="workPlot" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>711</width>
-            <height>511</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>128</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideMiddle</enum>
+      </property>
+      <property name="documentMode">
+       <bool>true</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>
@@ -77,7 +59,14 @@
     <addaction name="separator"/>
     <addaction name="action_Settings"/>
    </widget>
+   <widget class="QMenu" name="menu_Connection">
+    <property name="title">
+     <string>&amp;Connection</string>
+    </property>
+    <addaction name="action_Connect"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menu_Connection"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -90,6 +79,8 @@
    <addaction name="action_Open"/>
    <addaction name="action_Save"/>
    <addaction name="action_Save_as"/>
+   <addaction name="separator"/>
+   <addaction name="action_Connect"/>
    <addaction name="separator"/>
    <addaction name="action_Settings"/>
   </widget>
@@ -154,16 +145,20 @@
     <string>Settings</string>
    </property>
   </action>
+  <action name="action_Connect">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/24/lightning.png</normaloff>:/24/lightning.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Connect</string>
+   </property>
+   <property name="toolTip">
+    <string>Connect</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="Resources.qrc"/>
  </resources>

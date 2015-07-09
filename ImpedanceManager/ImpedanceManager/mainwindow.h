@@ -3,10 +3,20 @@
 
 #include <QMainWindow>
 #include <QString>
+#include <QWidget>
+#include <QList>
 
+#include "ceisproject.h"
 #include "csettingsdialog.h"
+#include "cnewprojectdialog.h"
+#include "csettingsmanager.h"
 
-namespace Ui {
+#define APPNAME  "Impedance Manager "
+
+using namespace MeasureUtility;
+
+namespace Ui
+{
 class MainWindow;
 }
 
@@ -20,6 +30,13 @@ public:
 
 private slots:
     void on_action_Settings_triggered();
+    void on_action_New_triggered();
+    void on_tbMain_tabCloseRequested(int index);
+
+
+    void on_tbMain_currentChanged(int index);
+
+    void on_tbMain_objectNameChanged(const QString &objectName);
 
 private:
     Ui::MainWindow *ui;
@@ -29,8 +46,7 @@ private:
         unsigned int ver32;
         unsigned char ver8[sizeof(unsigned int)];
     };
-    version_t appVersion;
-    constexpr static char* appName = "Impedance Manager ";
+    version_t m_appVersion;
 
     QString getAppVersion();
     void initComponents();

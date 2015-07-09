@@ -15,7 +15,9 @@ CSettingsDialog::CSettingsDialog(QWidget *parent) :
 CSettingsDialog::~CSettingsDialog()
 {
     delete ui;
-    delete m_serial;
+
+    if (m_serial != NULL)
+        delete m_serial;
 }
 
 void CSettingsDialog::initComponents()
@@ -24,11 +26,13 @@ void CSettingsDialog::initComponents()
 
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
         ui->cbSerialPort->addItem(info.portName());
+
+    m_serial = NULL;
 }
 
 void CSettingsDialog::on_pbSerialCheck_clicked()
 {
-    m_serial =  new QSerialPort();
+    m_serial =  new QSerialPort(this);
 
     connect(m_serial, SIGNAL(bytesWritten(qint64)),
                 this, SLOT(on_bytesWritten(qint64)));

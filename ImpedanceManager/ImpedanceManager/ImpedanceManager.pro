@@ -16,14 +16,25 @@ QMAKE_CXXFLAGS += -std=c++0x
 SOURCES += main.cpp\
         mainwindow.cpp \
     qcustomplot.cpp \
-    csettingsdialog.cpp
+    csettingsdialog.cpp \
+    cgenericproject.cpp \
+    ceisproject.cpp \
+    cnewprojectdialog.cpp \
+    csettingsmanager.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
-    csettingsdialog.h
+    csettingsdialog.h \
+    cgenericproject.h \
+    ceisproject.h \
+    cnewprojectdialog.h \
+    MeasureUtility.h \
+    csettingsmanager.h
 
 FORMS    += mainwindow.ui \
-    csettingsdialog.ui
+    csettingsdialog.ui \
+    cgenericproject.ui \
+    cnewprojectdialog.ui
 
 RESOURCES += \
     Resources.qrc
