@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui serialport
+QT       += concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
     cgenericproject.cpp \
     ceisproject.cpp \
     cnewprojectdialog.cpp \
-    csettingsmanager.cpp
+    csettingsmanager.cpp \
+    cserialthread.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -29,7 +31,8 @@ HEADERS  += mainwindow.h \
     ceisproject.h \
     cnewprojectdialog.h \
     MeasureUtility.h \
-    csettingsmanager.h
+    csettingsmanager.h \
+    cserialthread.h
 
 FORMS    += mainwindow.ui \
     csettingsdialog.ui \

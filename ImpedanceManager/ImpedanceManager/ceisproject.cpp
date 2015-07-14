@@ -1,6 +1,6 @@
 #include "ceisproject.h"
 
-CEisProject::CEisProject()
+CEisProject::CEisProject(QWidget *parent) : CGenericProject(parent)
 {
     m_type = EMeasures_t::eEIS;
     initPlot();

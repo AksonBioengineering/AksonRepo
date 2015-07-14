@@ -32,8 +32,8 @@ void MainWindow::initComponents()
 
 void MainWindow::on_action_Settings_triggered()
 {
-    CSettingsDialog* settingsDial = new CSettingsDialog(this);
-    settingsDial->exec();
+    CSettingsDialog settingsDial;
+    settingsDial.exec();
 }
 
 void MainWindow::on_action_New_triggered()

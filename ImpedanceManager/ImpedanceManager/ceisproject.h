@@ -6,7 +6,7 @@
 class CEisProject : public CGenericProject
 {
 public:
-    CEisProject();
+    CEisProject(QWidget *parent = 0);
     ~CEisProject();
 
 private:

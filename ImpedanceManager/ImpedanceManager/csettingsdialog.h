@@ -4,6 +4,9 @@
 #include <QDialog>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QSerialPort>
+#include <QByteArray>
+
+#include "cserialthread.h"
 
 namespace Ui {
 class CSettingsDialog;
@@ -17,13 +20,15 @@ public:
     explicit CSettingsDialog(QWidget *parent = 0);
     ~CSettingsDialog();
 
+signals:
+    void sendData(const quint8& command, const QByteArray& data);
+
 private slots:
     void on_pbSerialCheck_clicked();
-    void on_bytesWritten(qint64 nrOfBytes);
 
 private:
     Ui::CSettingsDialog *ui;
-    QSerialPort* m_serial;
+    CSerialThread* mp_serialThread;
 
     void initComponents();
 };

@@ -16,8 +16,12 @@ CSettingsDialog::~CSettingsDialog()
 {
     delete ui;
 
-    if (m_serial != NULL)
-        delete m_serial;
+    if (mp_serialThread)
+    {
+        mp_serialThread->quit();
+        mp_serialThread->wait();
+        delete mp_serialThread;
+    }
 }
 
 void CSettingsDialog::initComponents()
@@ -27,49 +31,37 @@ void CSettingsDialog::initComponents()
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
         ui->cbSerialPort->addItem(info.portName());
 
-    m_serial = NULL;
+    mp_serialThread = NULL;
 }
 
 void CSettingsDialog::on_pbSerialCheck_clicked()
 {
-    m_serial =  new QSerialPort(this);
+    // tu skonczylem, dodac jeszcze 1 level abstrakcji do seriala
 
-    connect(m_serial, SIGNAL(bytesWritten(qint64)),
-                this, SLOT(on_bytesWritten(qint64)));
+    mp_serialThread = new CSerialThread(ui->cbSerialPort->currentText());
+    mp_serialThread->moveToThread(mp_serialThread);
+    mp_serialThread->start();
 
-    m_serial->setPortName(ui->cbSerialPort->currentText());
+    ui->pbSerialCheck->setEnabled(false);
 
-    if (!m_serial->open(QIODevice::ReadWrite))
-    {
-        QMessageBox::warning(this, tr("Serial port"),
-                             tr("Serial port %1 is busy!")
-                            .arg(ui->cbSerialPort->currentText()));
-    }
-    else
-    {
-        m_serial->setBaudRate(QSerialPort::Baud115200);
-        m_serial->setDataBits(QSerialPort::Data8);
-        m_serial->setParity(QSerialPort::NoParity);
-        m_serial->setStopBits(QSerialPort::OneStop);
-        m_serial->setFlowControl(QSerialPort::NoFlowControl);
+    connect(this, SIGNAL(sendData(const quint8&, const QByteArray&)),
+            mp_serialThread, SLOT(on_sendData(const quint8&, const QByteArray&)));
 
-        if(!m_serial->write("TEST\r\n"))
+    quint8 command = 1;
+    QByteArray bArray;
+    bArray.clear();
+
+    emit sendData(command, bArray);
+
+       /* if(!m_serial->write("TEST\r\n"))
         {
             QMessageBox::warning(this, tr("Serial port"),
                              tr("SWrite on serial port port %1 failed!")
                             .arg(ui->cbSerialPort->currentText()));
-        }
-    }
+        }*/
 }
 
-void CSettingsDialog::on_bytesWritten(qint64 nrOfBytes)
-{
-    disconnect(m_serial, SIGNAL(bytesWritten(qint64)),
-                    this, SLOT(on_bytesWritten(qint64)));
 
-    qDebug() << "Serial bytes written:" << nrOfBytes;
-    m_serial->close();
-}
 
 
 

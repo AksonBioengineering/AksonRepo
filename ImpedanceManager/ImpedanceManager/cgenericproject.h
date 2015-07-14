@@ -25,11 +25,11 @@ public:
     EMeasures_t type();
 
 private:
-    Ui::CGenericProject *ui;
-
     virtual void initPlot();
 
 protected:
+    Ui::CGenericProject *ui;
+
     QCustomPlot* customPlot;
     QVector<double> m_x;
     QVector<double> m_y;
