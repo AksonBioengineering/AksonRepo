@@ -21,6 +21,8 @@ QString MainWindow::getAppVersion()
 
 void MainWindow::initComponents()
 {
+    qRegisterMetaType< MeasureUtility::Uint32Union_t >("MeasureUtility::Uint32Union_t");
+
     m_appVersion.ver8[2] = 1;         // Big new functionalities
     m_appVersion.ver8[1] = 0;         // new functionalities
     m_appVersion.ver8[0] = 0;         // changes to existing functionalities

@@ -7,6 +7,7 @@
 #include <QByteArray>
 
 #include "cserialthread.h"
+#include "MeasureUtility.h"
 
 namespace Ui {
 class CSettingsDialog;
@@ -21,10 +22,12 @@ public:
     ~CSettingsDialog();
 
 signals:
-    void sendData(const quint8& command, const QByteArray& data);
+    void send_getFirmwareID();
 
 private slots:
     void on_pbSerialCheck_clicked();
+
+    void at_received_getFirmwareID(const MeasureUtility::Uint32Union_t&);
 
 private:
     Ui::CSettingsDialog *ui;

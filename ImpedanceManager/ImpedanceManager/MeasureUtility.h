@@ -12,6 +12,12 @@ namespace MeasureUtility
         QString m_name;
         QString m_value;
     } SettingParam_t;
+
+    typedef union
+    {
+        quint32 id32;
+        quint8 id8[sizeof(quint32)];
+    } Uint32Union_t;
 }
 
 #endif // MEASUREUTILITY_H

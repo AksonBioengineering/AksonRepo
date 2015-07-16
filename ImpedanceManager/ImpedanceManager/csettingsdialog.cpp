@@ -36,29 +36,24 @@ void CSettingsDialog::initComponents()
 
 void CSettingsDialog::on_pbSerialCheck_clicked()
 {
-    // tu skonczylem, dodac jeszcze 1 level abstrakcji do seriala
-
     mp_serialThread = new CSerialThread(ui->cbSerialPort->currentText());
     mp_serialThread->moveToThread(mp_serialThread);
     mp_serialThread->start();
 
     ui->pbSerialCheck->setEnabled(false);
 
-    connect(this, SIGNAL(sendData(const quint8&, const QByteArray&)),
-            mp_serialThread, SLOT(on_sendData(const quint8&, const QByteArray&)));
+    connect(this, SIGNAL(send_getFirmwareID()),
+            mp_serialThread, SLOT(on_send_getFirmwareID()));
+    connect(mp_serialThread, SIGNAL(received_getFirmwareID(const MeasureUtility::Uint32Union_t&)),
+            this, SLOT(at_received_getFirmwareID(const MeasureUtility::Uint32Union_t&)));
 
-    quint8 command = 1;
-    QByteArray bArray;
-    bArray.clear();
+    emit send_getFirmwareID();
+}
 
-    emit sendData(command, bArray);
-
-       /* if(!m_serial->write("TEST\r\n"))
-        {
-            QMessageBox::warning(this, tr("Serial port"),
-                             tr("SWrite on serial port port %1 failed!")
-                            .arg(ui->cbSerialPort->currentText()));
-        }*/
+void CSettingsDialog::at_received_getFirmwareID(const MeasureUtility::Uint32Union_t& id)
+{
+    qDebug() << QString("Embedded system firmware version: %1.%2.%3.%4")
+                .arg(id.id8[3]).arg(id.id8[2]).arg(id.id8[1]).arg(id.id8[0]);
 }
 
 
