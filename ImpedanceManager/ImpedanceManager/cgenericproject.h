@@ -22,7 +22,8 @@ public:
     explicit CGenericProject(QWidget *parent = 0);
     ~CGenericProject();
 
-    EMeasures_t type();
+    virtual EMeasures_t measureType(){ return EMeasures_t::eDummy; }
+    virtual void takeMeasure();
 
 private:
     virtual void initPlot();
@@ -33,8 +34,6 @@ protected:
     QCustomPlot* customPlot;
     QVector<double> m_x;
     QVector<double> m_y;
-
-    EMeasures_t m_type;
 };
 
 #endif // CGENERICPROJECT_H

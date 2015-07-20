@@ -21,7 +21,7 @@ QString MainWindow::getAppVersion()
 
 void MainWindow::initComponents()
 {
-    qRegisterMetaType< MeasureUtility::Uint32Union_t >("MeasureUtility::Uint32Union_t");
+    qRegisterMetaType< MeasureUtility::union32_t >("MeasureUtility::Uint32Union_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
     m_appVersion.ver8[1] = 0;         // new functionalities
@@ -30,6 +30,12 @@ void MainWindow::initComponents()
 
     QString settingsFile = QApplication::applicationDirPath() + "/settings.xms";
     CSettingsManager::instance()->setFilePath(settingsFile);
+}
+
+CGenericProject* MainWindow::currentMeasObject()
+{
+    auto measObj = dynamic_cast<CGenericProject*>(ui->tbMain->widget(ui->tbMain->currentIndex()));
+    return measObj;
 }
 
 void MainWindow::on_action_Settings_triggered()
@@ -75,10 +81,15 @@ void MainWindow::on_tbMain_tabCloseRequested(int index)
 
 void MainWindow::on_tbMain_currentChanged(int index)
 {
-    qDebug() << "current:" << ui->tbMain->widget(index)->metaObject()->className();
+    //qDebug() << "current:" << ui->tbMain->widget(index)->metaObject()->className();
 }
 
 void MainWindow::on_tbMain_objectNameChanged(const QString &objectName)
 {
     qDebug() << "Object name changed" << objectName;
+}
+
+void MainWindow::on_action_Connect_triggered()
+{
+    qDebug() << "Current object is of type" << (int)currentMeasObject()->measureType();
 }

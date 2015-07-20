@@ -38,6 +38,8 @@ private slots:
 
     void on_tbMain_objectNameChanged(const QString &objectName);
 
+    void on_action_Connect_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -50,6 +52,8 @@ private:
 
     QString getAppVersion();
     void initComponents();
+    CGenericProject* currentMeasObject();
+
 };
 
 #endif // MAINWINDOW_H

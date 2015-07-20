@@ -63,7 +63,17 @@
     <property name="title">
      <string>&amp;Connection</string>
     </property>
+    <widget class="QMenu" name="menuMeasure">
+     <property name="title">
+      <string>Measure</string>
+     </property>
+     <addaction name="action_Start_measure"/>
+     <addaction name="action_Pause_measure"/>
+     <addaction name="action_Cancel_measure"/>
+    </widget>
     <addaction name="action_Connect"/>
+    <addaction name="separator"/>
+    <addaction name="menuMeasure"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Connection"/>
@@ -81,6 +91,10 @@
    <addaction name="action_Save_as"/>
    <addaction name="separator"/>
    <addaction name="action_Connect"/>
+   <addaction name="separator"/>
+   <addaction name="action_Start_measure"/>
+   <addaction name="action_Pause_measure"/>
+   <addaction name="action_Cancel_measure"/>
    <addaction name="separator"/>
    <addaction name="action_Settings"/>
   </widget>
@@ -155,6 +169,48 @@
    </property>
    <property name="toolTip">
     <string>Connect</string>
+   </property>
+  </action>
+  <action name="action_Start_measure">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Play_24x24.png</normaloff>:/more24/Play_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Start measure</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Return</string>
+   </property>
+  </action>
+  <action name="action_Pause_measure">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Pause_24x24.png</normaloff>:/more24/Pause_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>Pause measure</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Space</string>
+   </property>
+  </action>
+  <action name="action_Cancel_measure">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Stop_24x24.png</normaloff>:/more24/Stop_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Cancel</string>
+   </property>
+   <property name="toolTip">
+    <string>Cancel measure</string>
    </property>
   </action>
  </widget>

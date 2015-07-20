@@ -2,7 +2,6 @@
 
 CEisProject::CEisProject(QWidget *parent) : CGenericProject(parent)
 {
-    m_type = EMeasures_t::eEIS;
     initPlot();
 }
 
@@ -20,7 +19,14 @@ void CEisProject::initPlot()
     customPlot->replot();
 }
 
-void CEisProject::exampleEisMethod()
+void CEisProject::takeMeasure()
 {
-
+    bool ok;
+    emit send_takeMeasEis((quint8)ui->lAmplitude->text().toInt(&ok, 10),
+                          (quint32)ui->leFreqStart->text().toInt(&ok, 10),
+                          (quint32)ui->leFreqStop->text().toInt(&ok, 10),
+                          (quint32)ui->leFreqStep->text().toInt(&ok, 10),
+                          (EStepType_t)ui->cbTypeStep->currentIndex());
 }
+
+

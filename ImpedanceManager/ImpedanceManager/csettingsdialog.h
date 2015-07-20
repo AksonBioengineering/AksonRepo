@@ -8,6 +8,7 @@
 
 #include "cserialthread.h"
 #include "MeasureUtility.h"
+#include "csettingsmanager.h"
 
 namespace Ui {
 class CSettingsDialog;
@@ -27,7 +28,8 @@ signals:
 private slots:
     void on_pbSerialCheck_clicked();
 
-    void at_received_getFirmwareID(const MeasureUtility::Uint32Union_t&);
+    void at_mp_SerialThread_rxTimeout(const int&);
+    void at_received_getFirmwareID(const MeasureUtility::union32_t&);
 
 private:
     Ui::CSettingsDialog *ui;

@@ -30,7 +30,7 @@ void CGenericProject::initPlot()
     customPlot->yAxis->setRange(0, 1000);
 }
 
-EMeasures_t CGenericProject::type()
+void CGenericProject::takeMeasure()
 {
-    return m_type;
+    qCritical() << "ERROR: Base class takeMeasure method called!";
 }

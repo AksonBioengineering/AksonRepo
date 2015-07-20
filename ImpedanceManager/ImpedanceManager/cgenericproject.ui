@@ -22,17 +22,14 @@
        <height>302</height>
       </size>
      </property>
-     <zorder></zorder>
-     <zorder>lineEdit_2</zorder>
-     <zorder></zorder>
     </widget>
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="lAmplitude">
+       <item row="4" column="1">
+        <widget class="QLabel" name="lTypeStep">
          <property name="maximumSize">
           <size>
            <width>50</width>
@@ -40,30 +37,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Amp [mV]</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="leAmplitude">
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="lFreqStart">
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Freq start</string>
+          <string>Step type</string>
          </property>
         </widget>
        </item>
@@ -80,8 +54,21 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLineEdit" name="leFreqStart">
+       <item row="2" column="0">
+        <widget class="QLabel" name="lFreqStart">
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Freq start</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="leAmplitude">
          <property name="maximumSize">
           <size>
            <width>50</width>
@@ -90,8 +77,31 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="leFreqStop">
+       <item row="5" column="0">
+        <widget class="QLineEdit" name="leFreqStep">
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lAmplitude">
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Amp [mV]</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLineEdit" name="leFreqStart">
          <property name="maximumSize">
           <size>
            <width>50</width>
@@ -113,31 +123,18 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="lTypeStep">
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Step type</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLineEdit" name="leFreqStep">
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
        <item row="5" column="1">
         <widget class="QComboBox" name="cbTypeStep">
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="leFreqStop">
          <property name="maximumSize">
           <size>
            <width>50</width>

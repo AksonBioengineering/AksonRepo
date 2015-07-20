@@ -1,5 +1,6 @@
 #include "cserialthread.h"
 
+
 CSerialThread::CSerialThread(const QString& port, QObject *parent) :
     QThread(parent)
 {
@@ -19,7 +20,10 @@ CSerialThread::CSerialThread(const QString& port, QObject *parent) :
 }
 
 CSerialThread::~CSerialThread()
-{
+{   
+    if (mp_frameStruct) delete mp_frameStruct;
+    if (mp_RxTimeoutTimer) delete mp_RxTimeoutTimer;
+
     if (mp_serial)
     {
         mp_serial->close();
@@ -36,9 +40,20 @@ void CSerialThread::run()
         exit(1);
     }
 
+    mp_RxTimeoutTimer = new QTimer();
+
     // Connections
+
+    // com port
     connect(mp_serial, SIGNAL(readyRead()),
-            this, SLOT(on_readyRead()));
+            this, SLOT(on_readyRead()), Qt::UniqueConnection);
+
+    // Timer
+    connect(mp_RxTimeoutTimer, SIGNAL(timeout()),
+            this, SLOT(on_rxTimeout()), Qt::UniqueConnection);
+
+    mp_RxTimeoutTimer->setSingleShot(true);
+    mp_RxTimeoutTimer->setInterval(m_rxTimeoutInterval_ms);
 
     emit openPort(0);
 
@@ -59,6 +74,7 @@ void CSerialThread::sendData(const ESerialCommand_t& command, const QByteArray& 
     m_sendBuffer.clear();
     m_sendBuffer.append(m_syncByte);                      // sync byte
     m_sendBuffer.append((quint8)command);                 // command
+    m_sentCommand = command;                              // timeout purposes
 
     len = data.length() + sizeof(crc);                    // len = data + crc
     m_sendBuffer.append((quint8)(len & 0xFF));            // len
@@ -73,6 +89,8 @@ void CSerialThread::sendData(const ESerialCommand_t& command, const QByteArray& 
 
     if (!mp_serial->write(m_sendBuffer))
         qWarning() << "Sending data on port" << mp_serial->portName() << "failed";
+    else
+        mp_RxTimeoutTimer->start();
 }
 
 quint16 CSerialThread::getCrc(const QByteArray& bArray)
@@ -88,6 +106,7 @@ quint16 CSerialThread::getCrc(const QByteArray& bArray)
 quint16 CSerialThread::getCrc(const ESerialFrame_t& frame)
 {
     quint16 crc = 0;
+
     crc += frame.m_syncByte;
     crc += (quint8)frame.m_command;
     crc += frame.m_length;
@@ -100,6 +119,7 @@ quint16 CSerialThread::getCrc(const ESerialFrame_t& frame)
 
 void CSerialThread::on_readyRead()
 {
+    mp_RxTimeoutTimer->start(); // reset timer
     QByteArray receiveBuffer(mp_serial->readAll());
 
     while(receiveBuffer.length())
@@ -179,6 +199,7 @@ int CSerialThread::digForFrames(QByteArray& buffer)
 
 void CSerialThread::frameReady()
 {
+    mp_RxTimeoutTimer->stop();
     static ESerialFrame_t frame;
 
     do
@@ -193,14 +214,47 @@ void CSerialThread::frameReady()
 
         switch (frame.m_command)
         {
-            case ESerialCommand_t::e_getFirmwareID:
+            case ESerialCommand_t::e_getFirmwareID: // answer
             {
-                MeasureUtility::Uint32Union_t id;
+                MeasureUtility::union32_t id;
                 id.id32 = 0;
                 for (quint32 i = 0; i < sizeof(quint32); i++)
                     id.id8[i] = frame.m_data[i];
 
                 emit received_getFirmwareID(id);
+                break;
+            }
+
+            case ESerialCommand_t::e_takeMeasEis: // answer
+            {
+                emit received_takeMeasEis((bool)frame.m_data[0]);
+                break;
+            }
+
+            case ESerialCommand_t::e_giveMeasChunkEis: // command
+            {
+                union32_t realImp;
+                union32_t imagImp;
+                union32_t freqPoint;
+                quint32 i = 0;
+
+                for (; i < sizeof(union32_t); i++)
+                    realImp.id8[i] = frame.m_data[i];
+
+                for (; i < sizeof(union32_t); i++)
+                    imagImp.id8[i] = frame.m_data[i];
+
+                for (; i < sizeof(union32_t); i++)
+                    freqPoint.id8[i] = frame.m_data[i];
+
+                emit received_giveMeasChunkEis(realImp, imagImp, freqPoint);
+                break;
+            }
+
+            case ESerialCommand_t::e_endMeasEis: // command
+            {
+                send_endMeasEis();
+                emit received_endMeasEis();
                 break;
             }
 
@@ -210,16 +264,6 @@ void CSerialThread::frameReady()
                             << "and length" << frame.m_length;
             }
         }
-
-        /*qDebug() << "Command" << (int)frame.m_command;
-        qDebug() << "Length" << frame.m_length;
-
-        QString dataStr;
-        for (auto item : frame.m_data)
-            dataStr += QString("%1").arg((int)item) + " ";
-
-        qDebug() << "Data" << dataStr;
-        qDebug() << "Crc" << frame.m_crc;*/
     }
     while(m_frameQueue.length());
 }
@@ -230,8 +274,58 @@ void CSerialThread::on_closePort()
     exit(0);
 }
 
+void CSerialThread::on_rxTimeout()
+{
+    qWarning() << "Rx timeout on command" << (int)m_sentCommand;
+    emit rxTimeout((int)m_sentCommand);
+    on_closePort();
+}
+
 void CSerialThread::on_send_getFirmwareID()
 {
-    QByteArray emptyArr;
-    sendData(ESerialCommand_t::e_getFirmwareID, emptyArr);
+    QByteArray sendArr;
+    sendData(ESerialCommand_t::e_getFirmwareID, sendArr);
 }
+
+void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
+                                        const quint32& freqStart,
+                                        const quint32& freqEnd,
+                                        const quint16& nrOfSteps,
+                                        const MeasureUtility::EStepType_t& stepType)
+{
+    QByteArray sendArr;
+    sendArr.append(amplitude);
+
+    for (quint32 i = 0; i < sizeof(quint32); i++)
+        sendArr.append((quint8)(freqStart >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(quint32); i++)
+        sendArr.append((quint8)(freqEnd >> (i * 8)) & 0xFF);
+
+    for (quint16 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(nrOfSteps >> (i * 8)) & 0xFF);
+
+    sendArr.append((quint8)stepType);
+    sendData(ESerialCommand_t::e_takeMeasEis, sendArr);
+}
+
+void CSerialThread::send_endMeasEis()
+{
+    QByteArray sendArr;
+    sendData(ESerialCommand_t::e_endMeasEis, sendArr);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
