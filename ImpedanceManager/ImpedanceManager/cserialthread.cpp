@@ -55,14 +55,13 @@ void CSerialThread::run()
     mp_RxTimeoutTimer->setSingleShot(true);
     mp_RxTimeoutTimer->setInterval(m_rxTimeoutInterval_ms);
 
-    emit openPort(0);
-
     mp_serial->setBaudRate(QSerialPort::Baud115200);
     mp_serial->setDataBits(QSerialPort::Data8);
     mp_serial->setParity(QSerialPort::NoParity);
     mp_serial->setStopBits(QSerialPort::OneStop);
     mp_serial->setFlowControl(QSerialPort::NoFlowControl);
 
+    emit openPort(0);
     exec();
 }
 
@@ -131,7 +130,7 @@ void CSerialThread::on_readyRead()
     }
 
     // no need to emit if more than 1 item in queue
-    if (m_frameQueue.length() == 1)
+    //if (m_frameQueue.length() == 1)
         frameReady();
 }
 

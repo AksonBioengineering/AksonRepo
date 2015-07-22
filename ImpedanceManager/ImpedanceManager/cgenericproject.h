@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QVector>
+#include <QIntValidator>
 
 #include "ui_cgenericproject.h"
 #include "qcustomplot.h"
@@ -27,6 +28,7 @@ public:
 
 private:
     virtual void initPlot();
+    virtual void initFields();
 
 protected:
     Ui::CGenericProject *ui;

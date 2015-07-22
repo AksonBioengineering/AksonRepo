@@ -20,7 +20,7 @@ CSettingsDialog::~CSettingsDialog()
     {
         mp_serialThread->quit();
         mp_serialThread->wait();
-        //delete mp_serialThread;
+        mp_serialThread->deleteLater();
     }
 }
 
@@ -48,6 +48,9 @@ void CSettingsDialog::on_pbSerialCheck_clicked()
 
     ui->pbSerialCheck->setEnabled(false);
     ui->cbSerialPort->setEnabled(false);
+
+    connect(mp_serialThread, SIGNAL(openPort(const int&)),
+            this, SLOT(at_mp_SerialThread_openPort(const int&)), Qt::UniqueConnection);
 
     connect(this, SIGNAL(send_getFirmwareID()),
             mp_serialThread, SLOT(on_send_getFirmwareID()), Qt::UniqueConnection);
@@ -77,16 +80,32 @@ void CSettingsDialog::at_received_getFirmwareID(const MeasureUtility::union32_t&
     ui->cbSerialPort->setEnabled(true);
 }
 
-void CSettingsDialog::at_mp_SerialThread_rxTimeout(const int&)
+void CSettingsDialog::at_mp_SerialThread_rxTimeout(const int& command)
 {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Critical);
-    msgBox.setText(QString("Connection with %1 failed").arg(ui->cbSerialPort->currentText()));
-    msgBox.setInformativeText("No communication with embedded system!");\
+    msgBox.setText(QString("Communication with %1 failed").arg(ui->cbSerialPort->currentText()));
+    msgBox.setInformativeText(QString("No communication with embedded system! Command %1 without answer")
+                              .arg(command));
     msgBox.exec();
 
     ui->pbSerialCheck->setEnabled(true);
     ui->cbSerialPort->setEnabled(true);
+}
+
+void CSettingsDialog::at_mp_SerialThread_openPort(const int& val)
+{
+    if (val)
+    {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText(QString("Port %1 is bussy").arg(ui->cbSerialPort->currentText()));
+        msgBox.setInformativeText(QString("Cannot open specified port."));\
+        msgBox.exec();
+
+        ui->pbSerialCheck->setEnabled(true);
+        ui->cbSerialPort->setEnabled(true);
+    }
 }
 
 

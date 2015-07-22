@@ -6,6 +6,7 @@ CNewProjectDialog::CNewProjectDialog(EMeasures_t* type , QWidget *parent) :
     ui(new Ui::CNewProjectDialog)
 {
     ui->setupUi(this);
+    setWindowTitle("Method");
 
     mp_measure = type;
 }

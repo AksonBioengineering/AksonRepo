@@ -34,3 +34,8 @@ void CGenericProject::takeMeasure()
 {
     qCritical() << "ERROR: Base class takeMeasure method called!";
 }
+
+void CGenericProject::initFields()
+{
+    qCritical() << "ERROR: Base class initFields method called!";
+}

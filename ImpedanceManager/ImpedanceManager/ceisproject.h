@@ -20,6 +20,7 @@ signals:
 
 private:
     virtual void initPlot();
+    virtual void initFields();
 };
 
 #endif // CEISPROJECT_H

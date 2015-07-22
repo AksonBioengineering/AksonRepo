@@ -11,6 +11,8 @@
 
 #include "MeasureUtility.h"
 
+#define XML_FIELD_PORT      "serial_port"
+
 using namespace MeasureUtility;
 
 class CSettingsManager : public QObject

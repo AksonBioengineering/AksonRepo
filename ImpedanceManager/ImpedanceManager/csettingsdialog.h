@@ -28,6 +28,7 @@ signals:
 private slots:
     void on_pbSerialCheck_clicked();
 
+    void at_mp_SerialThread_openPort(const int&);
     void at_mp_SerialThread_rxTimeout(const int&);
     void at_received_getFirmwareID(const MeasureUtility::union32_t&);
 
