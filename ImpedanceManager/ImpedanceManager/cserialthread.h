@@ -47,8 +47,7 @@ signals:
     // frames:                                                              // Sender:
     void received_getFirmwareID(const MeasureUtility::union32_t& id);   // IM
     void received_takeMeasEis(const bool& ack);                         // IM
-    void received_giveMeasChunkEis(const union32_t& impReal,
-                                   const union32_t& impImag, const union32_t& freqPoint); // ES
+    void received_giveMeasChunkEis(const union32_t&, const union32_t&, const union32_t&); // ES
 
     void received_endMeasEis();                                         // ES
 
@@ -59,11 +58,11 @@ public slots:
     // frames:
     void on_rxTimeout();
     void on_send_getFirmwareID();
-    void on_send_takeMeasEis(const quint8& amplitude,
-                             const quint32& freqStart,
-                             const quint32& freqEnd,
-                             const quint16& nrOfSteps,
-                             const MeasureUtility::EStepType_t& stepType);
+    void on_send_takeMeasEis(const quint8&,
+                             const quint32&,
+                             const quint32&,
+                             const quint16&,
+                             const quint8&);
 
 private:
     quint16 getCrc(const QByteArray& bArray);

@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(mp_serialThread, SIGNAL(rxTimeout(const int&)),
             this, SLOT(at_mp_SerialThread_rxTimeout(const int&)), Qt::UniqueConnection);
+
 }
 
 MainWindow::~MainWindow()
@@ -45,6 +46,7 @@ QString MainWindow::getAppVersion()
 void MainWindow::initComponents()
 {
     qRegisterMetaType< MeasureUtility::union32_t >("MeasureUtility::union32_t");
+    qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
     m_appVersion.ver8[1] = 0;         // new functionalities
@@ -61,16 +63,16 @@ void MainWindow::initComponents()
     mp_dummyProject = NULL;
 }
 
-CGenericProject* MainWindow::currentMeasObject()
+CGenericProject* MainWindow::currentMeasObject(const int& index)
 {
-    auto measObj = dynamic_cast<CGenericProject*>(ui->tbMain->widget(ui->tbMain->currentIndex()));
+    auto measObj = dynamic_cast<CGenericProject*>(ui->tbMain->widget(index));
 
     if (!measObj)
     {
         if (!mp_dummyProject)
-            mp_dummyProject = new CGenericProject(this);
+            mp_dummyProject = new CGenericProject(mp_serialThread, this);
 
-        measObj = mp_dummyProject; // tu skonczylem
+        measObj = mp_dummyProject;
     }
 
     return measObj;
@@ -172,8 +174,11 @@ void MainWindow::on_action_New_triggered()
         {
             case EMeasures_t::eEIS:
             {
-                CGenericProject* test = new CEisProject();
-                ui->tbMain->addTab(test, "Untitled*");
+                CGenericProject* measIntstance = new CEisProject(mp_serialThread);
+                ui->tbMain->addTab(measIntstance, "Untitled*");
+
+                connect(measIntstance, SIGNAL(measureStarted()),
+                        this, SLOT(at_measureStarted()));
                 break;
             }
 
@@ -197,6 +202,14 @@ void MainWindow::on_tbMain_tabCloseRequested(int index)
 void MainWindow::on_tbMain_currentChanged(int index)
 {
     //qDebug() << "current:" << ui->tbMain->widget(index)->metaObject()->className();
+    qDebug() << "Current index changed" << index;
+
+    // disconnect all
+    for (int i = 0; i < ui->tbMain->count(); i++)
+        currentMeasObject(i)->changeConnections(false);
+
+    // and connect the current one
+    currentMeasObject(index)->changeConnections(true);
 }
 
 void MainWindow::on_tbMain_objectNameChanged(const QString &objectName)
@@ -206,7 +219,7 @@ void MainWindow::on_tbMain_objectNameChanged(const QString &objectName)
 
 void MainWindow::on_action_Connect_triggered()
 {
-    qDebug() << "Current object is of type" << (int)currentMeasObject()->measureType();
+    //qDebug() << "Current object is of type" << (int)currentMeasObject()->measureType();
 
     if (EMachineState_t::eDisconnected == machineState())
     {
@@ -225,6 +238,13 @@ void MainWindow::at_received_getFirmwareID(const MeasureUtility::union32_t& id)
     setMachineState(EMachineState_t::eConnected);
     ui->statusBar->showMessage(QString("Embedded system firmware version: %1.%2.%3.%4")
                               .arg(id.id8[3]).arg(id.id8[2]).arg(id.id8[1]).arg(id.id8[0]), 5000);
+}
+
+void MainWindow::at_measureStarted()
+{
+    qDebug() << "measure started!";
+    setMachineState(EMachineState_t::eMeasuring);
+    // ustawic aktywnego taba do pomiarow albo zablokowac funkcje zmieniajaca connecty
 }
 
 void MainWindow::at_mp_SerialThread_rxTimeout(const int& command)
@@ -256,5 +276,16 @@ void MainWindow::at_mp_SerialThread_openPort(const int& val)
     {
         setMachineState(EMachineState_t::eConnecting);
         emit send_getFirmwareID();
+    }
+}
+
+void MainWindow::on_action_Start_measure_triggered()
+{
+    if (machineState() == EMachineState_t::eConnected)
+    {
+        if((int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+        {
+            currentMeasObject(ui->tbMain->currentIndex())->takeMeasure();
+        }
     }
 }

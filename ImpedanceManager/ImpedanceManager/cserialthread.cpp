@@ -120,17 +120,17 @@ void CSerialThread::on_readyRead()
 {
     mp_RxTimeoutTimer->start(); // reset timer
     QByteArray receiveBuffer(mp_serial->readAll());
+    int errorCode = 0;
 
     while(receiveBuffer.length())
     {
-        if (digForFrames(receiveBuffer))
+        if (errorCode = digForFrames(receiveBuffer))
         {
-            qWarning() << "Examinating bytes from tcp failed";
+            qWarning() << "Examinating bytes from tcp failed" << errorCode;
         }
     }
 
-    // no need to emit if more than 1 item in queue
-    //if (m_frameQueue.length() == 1)
+    if (m_frameQueue.length() >= 1)
         frameReady();
 }
 
@@ -226,6 +226,7 @@ void CSerialThread::frameReady()
 
             case ESerialCommand_t::e_takeMeasEis: // answer
             {
+                qDebug() << "TCP: Answer for e_takeMeasEis";
                 emit received_takeMeasEis((bool)frame.m_data[0]);
                 break;
             }
@@ -290,7 +291,7 @@ void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
                                         const quint32& freqStart,
                                         const quint32& freqEnd,
                                         const quint16& nrOfSteps,
-                                        const MeasureUtility::EStepType_t& stepType)
+                                        const quint8& stepType)
 {
     QByteArray sendArr;
     sendArr.append(amplitude);

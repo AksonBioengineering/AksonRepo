@@ -40,6 +40,7 @@ private slots:
     void at_mp_SerialThread_openPort(const int&);
     void at_mp_SerialThread_rxTimeout(const int&);
     void at_received_getFirmwareID(const MeasureUtility::union32_t&);
+    void at_measureStarted();
 
     void on_action_Settings_triggered();
     void on_action_New_triggered();
@@ -47,6 +48,8 @@ private slots:
     void on_tbMain_currentChanged(int index);
     void on_tbMain_objectNameChanged(const QString &objectName);
     void on_action_Connect_triggered();
+
+    void on_action_Start_measure_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -61,7 +64,7 @@ private:
 
     QString getAppVersion();
     void initComponents();
-    CGenericProject* currentMeasObject();
+    CGenericProject* currentMeasObject(const int& index);
     void setMachineState(EMachineState_t state);
     EMachineState_t& machineState();
 

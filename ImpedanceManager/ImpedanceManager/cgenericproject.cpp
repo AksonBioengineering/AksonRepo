@@ -1,6 +1,6 @@
 #include "cgenericproject.h"
 
-CGenericProject::CGenericProject(QWidget *parent) :
+CGenericProject::CGenericProject(CSerialThread* serialThread, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CGenericProject)
 {
@@ -9,6 +9,8 @@ CGenericProject::CGenericProject(QWidget *parent) :
 
     m_x.clear();
     m_y.clear();
+
+    mp_serialThread = serialThread;
 }
 
 CGenericProject::~CGenericProject()
@@ -38,4 +40,9 @@ void CGenericProject::takeMeasure()
 void CGenericProject::initFields()
 {
     qCritical() << "ERROR: Base class initFields method called!";
+}
+
+void CGenericProject::changeConnections(const bool)
+{
+    qCritical() << "ERROR: Base class removeConnections method called!";
 }
