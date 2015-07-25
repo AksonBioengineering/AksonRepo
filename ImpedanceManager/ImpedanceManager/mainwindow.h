@@ -41,6 +41,7 @@ private slots:
     void at_mp_SerialThread_rxTimeout(const int&);
     void at_received_getFirmwareID(const MeasureUtility::union32_t&);
     void at_measureStarted();
+    void at_measureFinished();
 
     void on_action_Settings_triggered();
     void on_action_New_triggered();

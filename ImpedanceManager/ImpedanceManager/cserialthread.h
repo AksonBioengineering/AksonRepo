@@ -68,7 +68,9 @@ private:
     quint16 getCrc(const QByteArray& bArray);
     quint16 getCrc(const ESerialFrame_t& frame);
     int digForFrames(QByteArray& buffer);
-    void sendData(const ESerialCommand_t& command, const QByteArray& data);
+    void sendData(const ESerialCommand_t& command,
+                  const QByteArray& data,
+                  const bool wantAck);
     void frameReady();
 
     // frames
@@ -82,7 +84,7 @@ private:
     QTimer* mp_RxTimeoutTimer;
 
     static const quint8 m_syncByte = '?';
-    static const int m_rxTimeoutInterval_ms = 3000;
+    static const int m_rxTimeoutInterval_ms = 5000;
 };
 
 #endif // CSERIALTHREAD_H

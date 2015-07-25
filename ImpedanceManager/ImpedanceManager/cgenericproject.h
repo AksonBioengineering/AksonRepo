@@ -29,8 +29,12 @@ public:
     virtual void changeConnections(const bool);
 
 signals:
-    virtual void measureStarted();
-    virtual void measureFinished();
+    void measureStarted();
+    void measureFinished();
+
+private slots:
+    void mousePress();
+    void mouseWheel(QWheelEvent* event);
 
 private:
     virtual void initPlot();
@@ -42,6 +46,7 @@ protected:
     QCustomPlot* customPlot;
     QVector<double> m_x;
     QVector<double> m_y;
+    QVector<double> m_z;
 
     CSerialThread* mp_serialThread;
 };

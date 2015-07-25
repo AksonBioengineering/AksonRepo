@@ -57,7 +57,7 @@ void CSerialThread::run()
 
     mp_serial->setBaudRate(QSerialPort::Baud115200);
     mp_serial->setDataBits(QSerialPort::Data8);
-    mp_serial->setParity(QSerialPort::NoParity);
+    mp_serial->setParity(QSerialPort::EvenParity);
     mp_serial->setStopBits(QSerialPort::OneStop);
     mp_serial->setFlowControl(QSerialPort::NoFlowControl);
 
@@ -65,7 +65,8 @@ void CSerialThread::run()
     exec();
 }
 
-void CSerialThread::sendData(const ESerialCommand_t& command, const QByteArray& data)
+void CSerialThread::sendData(const ESerialCommand_t& command,
+                             const QByteArray& data, const bool wantAck)
 {
     quint16 crc = 0;
     quint32 len = 0;
@@ -89,7 +90,10 @@ void CSerialThread::sendData(const ESerialCommand_t& command, const QByteArray& 
     if (!mp_serial->write(m_sendBuffer))
         qWarning() << "Sending data on port" << mp_serial->portName() << "failed";
     else
-        mp_RxTimeoutTimer->start();
+    {
+        if (wantAck)
+            mp_RxTimeoutTimer->start();
+    }
 }
 
 quint16 CSerialThread::getCrc(const QByteArray& bArray)
@@ -284,7 +288,7 @@ void CSerialThread::on_rxTimeout()
 void CSerialThread::on_send_getFirmwareID()
 {
     QByteArray sendArr;
-    sendData(ESerialCommand_t::e_getFirmwareID, sendArr);
+    sendData(ESerialCommand_t::e_getFirmwareID, sendArr, true);
 }
 
 void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
@@ -306,13 +310,13 @@ void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
         sendArr.append((quint8)(nrOfSteps >> (i * 8)) & 0xFF);
 
     sendArr.append((quint8)stepType);
-    sendData(ESerialCommand_t::e_takeMeasEis, sendArr);
+    sendData(ESerialCommand_t::e_takeMeasEis, sendArr, true);
 }
 
 void CSerialThread::send_endMeasEis()
 {
     QByteArray sendArr;
-    sendData(ESerialCommand_t::e_endMeasEis, sendArr);
+    sendData(ESerialCommand_t::e_endMeasEis, sendArr, false);
 }
 
 

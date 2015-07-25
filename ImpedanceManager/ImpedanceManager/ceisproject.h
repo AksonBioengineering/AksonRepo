@@ -21,6 +21,7 @@ signals:
 private slots:
     void on_received_takeMeasEis(const bool&);
     void on_received_giveMeasChunkEis(const union32_t&, const union32_t&, const union32_t&);
+    void on_received_endMeasEis();
 
 private:
     virtual void initPlot();

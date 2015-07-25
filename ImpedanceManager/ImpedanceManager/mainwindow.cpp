@@ -179,6 +179,8 @@ void MainWindow::on_action_New_triggered()
 
                 connect(measIntstance, SIGNAL(measureStarted()),
                         this, SLOT(at_measureStarted()));
+                connect(measIntstance, SIGNAL(measureFinished()),
+                        this, SLOT(at_measureFinished()));
                 break;
             }
 
@@ -195,6 +197,12 @@ void MainWindow::on_action_New_triggered()
 void MainWindow::on_tbMain_tabCloseRequested(int index)
 {
     qDebug() << "Close request " << index;
+
+    disconnect(currentMeasObject(index), SIGNAL(measureStarted()),
+            this, SLOT(at_measureStarted()));
+    disconnect(currentMeasObject(index), SIGNAL(measureFinished()),
+            this, SLOT(at_measureFinished()));
+
     delete  ui->tbMain->widget(index);
     //ui->tbMain->removeTab(index);
 }
@@ -204,12 +212,15 @@ void MainWindow::on_tbMain_currentChanged(int index)
     //qDebug() << "current:" << ui->tbMain->widget(index)->metaObject()->className();
     qDebug() << "Current index changed" << index;
 
-    // disconnect all
-    for (int i = 0; i < ui->tbMain->count(); i++)
-        currentMeasObject(i)->changeConnections(false);
+    if (index >= 0) // otherwise no tabs left to select
+    {
+        // disconnect all
+        for (int i = 0; i < ui->tbMain->count(); i++)
+            currentMeasObject(i)->changeConnections(false);
 
-    // and connect the current one
-    currentMeasObject(index)->changeConnections(true);
+        // and connect the current one
+        currentMeasObject(index)->changeConnections(true);
+    }
 }
 
 void MainWindow::on_tbMain_objectNameChanged(const QString &objectName)
@@ -245,6 +256,13 @@ void MainWindow::at_measureStarted()
     qDebug() << "measure started!";
     setMachineState(EMachineState_t::eMeasuring);
     // ustawic aktywnego taba do pomiarow albo zablokowac funkcje zmieniajaca connecty
+}
+
+void MainWindow::at_measureFinished()
+{
+    qDebug() << "measure finished!";
+    setMachineState(EMachineState_t::eConnected);
+    // Odblokowac zmienianie connectow od tabow
 }
 
 void MainWindow::at_mp_SerialThread_rxTimeout(const int& command)

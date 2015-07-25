@@ -19,6 +19,11 @@ void CEisProject::initPlot()
     customPlot->xAxis->setLabel("Re [Ohm]");
     customPlot->yAxis->setLabel("- Im [Ohm]");
 
+    // create graph and assign data to it:
+    customPlot->addGraph();
+    customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    customPlot->graph(0)->setName("EIS measure");
+
     customPlot->replot();
 }
 
@@ -88,6 +93,9 @@ void CEisProject::changeConnections(const bool con)
 
         connect(mp_serialThread, SIGNAL(received_giveMeasChunkEis(const union32_t& , const union32_t& , const union32_t&)),
                 this, SLOT(on_received_giveMeasChunkEis(const union32_t& , const union32_t& , const union32_t&)), Qt::UniqueConnection);
+
+        connect(mp_serialThread, SIGNAL(received_endMeasEis()),
+                this, SLOT(on_received_endMeasEis()), Qt::UniqueConnection);
     }
     else
     {
@@ -101,6 +109,9 @@ void CEisProject::changeConnections(const bool con)
 
         disconnect(mp_serialThread, SIGNAL(received_giveMeasChunkEis(const union32_t& , const union32_t& , const union32_t&)),
                 this, SLOT(on_received_giveMeasChunkEis(const union32_t& , const union32_t& , const union32_t&)));
+
+        disconnect(mp_serialThread, SIGNAL(received_endMeasEis()),
+                this, SLOT(on_received_endMeasEis()));
     }
 }
 
@@ -120,9 +131,23 @@ void CEisProject::on_received_takeMeasEis(const bool& ack)
     }
 }
 
-void CEisProject::on_received_giveMeasChunkEis(const union32_t& realImp, const union32_t& ImagImp, const union32_t& freq)
+void CEisProject::on_received_endMeasEis()
 {
+    emit measureFinished();
+}
 
+void CEisProject::on_received_giveMeasChunkEis(const union32_t& realImp,
+                                               const union32_t& ImagImp,
+                                               const union32_t& freq)
+{
+    m_x.append(realImp.idFl);
+    m_y.append(ImagImp.idFl);
+    m_z.append(freq.idFl);
+
+    qDebug("Point received. Real: %f Imag %f Freq %f", m_x.last(), m_y.last(), m_z.last());
+
+    customPlot->graph(0)->setData(m_x, m_y);
+    customPlot->replot();
 }
 
 
