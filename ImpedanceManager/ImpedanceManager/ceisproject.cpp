@@ -52,15 +52,17 @@ void CEisProject::takeMeasure()
     if (!amp)
         badParameters += ui->lAmplitude->text() + "\n";
 
-    quint32 freqStart = (quint32)ui->leFreqStart->text().toInt(&ok, 10);
-    if (!freqStart)
+    union32_t freqStart;
+    freqStart.idFl = (float)ui->leFreqStart->text().toDouble(&ok);
+    if (!freqStart.id32)
         badParameters += ui->lFreqStart->text() + "\n";
 
-    quint32 freqEnd = (quint32)ui->leFreqStop->text().toInt(&ok, 10);
-    if (!freqEnd)
+    union32_t freqEnd;
+    freqEnd.idFl = (float)ui->leFreqStop->text().toDouble(&ok);
+    if (!freqEnd.id32)
         badParameters += ui->lFreqEnd->text() + "\n";
 
-    quint32 freqStep = (quint32)ui->leFreqStep->text().toInt(&ok, 10);
+    quint16 freqStep = (quint16)ui->leFreqStep->text().toInt(&ok, 10);
     if (!freqStep)
         badParameters += ui->lFreqStep->text() + "\n";
 
@@ -83,9 +85,9 @@ void CEisProject::changeConnections(const bool con)
 {
     if(con)
     {
-        connect(this, SIGNAL(send_takeMeasEis(const quint8&, const quint32&, const quint32&,
+        connect(this, SIGNAL(send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
                                               const quint16&, const quint8&)),
-        mp_serialThread, SLOT(on_send_takeMeasEis(const quint8&, const quint32&, const quint32&,
+        mp_serialThread, SLOT(on_send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
                                               const quint16&, const quint8&)), Qt::UniqueConnection);
 
         connect(mp_serialThread, SIGNAL(received_takeMeasEis(const bool&)),
@@ -99,9 +101,9 @@ void CEisProject::changeConnections(const bool con)
     }
     else
     {
-        disconnect(this, SIGNAL(send_takeMeasEis(const quint8&, const quint32&, const quint32&,
+        disconnect(this, SIGNAL(send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
                                               const quint16&, const quint8&)),
-        mp_serialThread, SLOT(on_send_takeMeasEis(const quint8&, const quint32&, const quint32&,
+        mp_serialThread, SLOT(on_send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
                                               const quint16&, const quint8&)));
 
         disconnect(mp_serialThread, SIGNAL(received_takeMeasEis(const bool&)),
@@ -117,7 +119,7 @@ void CEisProject::changeConnections(const bool con)
 
 void CEisProject::on_received_takeMeasEis(const bool& ack)
 {
-    if (!ack)
+    if (ack)
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Critical);

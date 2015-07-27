@@ -24,6 +24,7 @@ public:
 
 signals:
     void send_getFirmwareID();
+    void closePort();
 
 private slots:
     void on_pbSerialCheck_clicked();

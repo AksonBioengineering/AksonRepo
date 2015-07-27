@@ -46,6 +46,7 @@ QString MainWindow::getAppVersion()
 void MainWindow::initComponents()
 {
     qRegisterMetaType< MeasureUtility::union32_t >("MeasureUtility::union32_t");
+    qRegisterMetaType< union32_t >("union32_t");
     qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities

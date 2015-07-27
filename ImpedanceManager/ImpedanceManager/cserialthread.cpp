@@ -27,7 +27,7 @@ CSerialThread::~CSerialThread()
     if (mp_serial)
     {
         mp_serial->close();
-        //delete mp_serial;
+        mp_serial->deleteLater();
     }
 }
 
@@ -55,9 +55,9 @@ void CSerialThread::run()
     mp_RxTimeoutTimer->setSingleShot(true);
     mp_RxTimeoutTimer->setInterval(m_rxTimeoutInterval_ms);
 
-    mp_serial->setBaudRate(QSerialPort::Baud115200);
+    mp_serial->setBaudRate(QSerialPort::Baud57600);
     mp_serial->setDataBits(QSerialPort::Data8);
-    mp_serial->setParity(QSerialPort::EvenParity);
+    mp_serial->setParity(QSerialPort::NoParity);
     mp_serial->setStopBits(QSerialPort::OneStop);
     mp_serial->setFlowControl(QSerialPort::NoFlowControl);
 
@@ -101,21 +101,21 @@ quint16 CSerialThread::getCrc(const QByteArray& bArray)
     quint16 crc = 0;
 
     for (auto item : bArray)
-        crc += item;
+        crc += (quint16)((quint8)item);
 
     return ~crc;
 }
 
 quint16 CSerialThread::getCrc(const ESerialFrame_t& frame)
 {
-    quint16 crc = 0;
+    quint32 crc = 0;
 
     crc += frame.m_syncByte;
-    crc += (quint8)frame.m_command;
-    crc += frame.m_length;
+    crc += (quint16)((quint8)frame.m_command);
+    crc += (quint16)frame.m_length;
 
     for (auto item : frame.m_data)
-        crc += item;
+        crc += (quint16)((quint8)item);
 
     return ~crc;
 }
@@ -140,10 +140,10 @@ void CSerialThread::on_readyRead()
 
 int CSerialThread::digForFrames(QByteArray& buffer)
 {
-    static quint32 currentIndex = 0;
-    static quint8 data = 0;
-    static bool newFrame = false;
-    static quint32 lastLen = 2 + sizeof(quint32);
+    static thread_local quint32 currentIndex = 0;
+    static thread_local bool newFrame = false;
+    static thread_local quint32 lastLen = 2 + sizeof(quint32);
+    quint8 data = 0;
 
     if (0 == buffer.length())
         return 3;
@@ -186,8 +186,11 @@ int CSerialThread::digForFrames(QByteArray& buffer)
                 if (mp_frameStruct->m_crc == calculatedCrc)
                     m_frameQueue.enqueue(mp_frameStruct);
                 else
-                    qWarning() << "Bad crc. Received:" << mp_frameStruct->m_crc
-                               << "Calculated:" << calculatedCrc;
+                {
+                    qWarning("Bad CRC. Received 0x%X Calculated 0x%X",
+                             mp_frameStruct->m_crc, calculatedCrc);
+                    delete mp_frameStruct;
+                }
 
                 currentIndex = 0;
                 return 0;
@@ -242,14 +245,14 @@ void CSerialThread::frameReady()
                 union32_t freqPoint;
                 quint32 i = 0;
 
-                for (; i < sizeof(union32_t); i++)
-                    realImp.id8[i] = frame.m_data[i];
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    realImp.id8[k] = frame.m_data[i];
 
-                for (; i < sizeof(union32_t); i++)
-                    imagImp.id8[i] = frame.m_data[i];
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    imagImp.id8[k] = frame.m_data[i];
 
-                for (; i < sizeof(union32_t); i++)
-                    freqPoint.id8[i] = frame.m_data[i];
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    freqPoint.id8[k] = frame.m_data[i];
 
                 emit received_giveMeasChunkEis(realImp, imagImp, freqPoint);
                 break;
@@ -292,8 +295,8 @@ void CSerialThread::on_send_getFirmwareID()
 }
 
 void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
-                                        const quint32& freqStart,
-                                        const quint32& freqEnd,
+                                        const union32_t& freqStart,
+                                        const union32_t& freqEnd,
                                         const quint16& nrOfSteps,
                                         const quint8& stepType)
 {
@@ -301,10 +304,10 @@ void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
     sendArr.append(amplitude);
 
     for (quint32 i = 0; i < sizeof(quint32); i++)
-        sendArr.append((quint8)(freqStart >> (i * 8)) & 0xFF);
+        sendArr.append(freqStart.id8[i]);
 
     for (quint32 i = 0; i < sizeof(quint32); i++)
-        sendArr.append((quint8)(freqEnd >> (i * 8)) & 0xFF);
+        sendArr.append(freqEnd.id8[i]);
 
     for (quint16 i = 0; i < sizeof(quint16); i++)
         sendArr.append((quint8)(nrOfSteps >> (i * 8)) & 0xFF);

@@ -59,8 +59,8 @@ public slots:
     void on_rxTimeout();
     void on_send_getFirmwareID();
     void on_send_takeMeasEis(const quint8&,
-                             const quint32&,
-                             const quint32&,
+                             const union32_t&,
+                             const union32_t&,
                              const quint16&,
                              const quint8&);
 
@@ -84,7 +84,7 @@ private:
     QTimer* mp_RxTimeoutTimer;
 
     static const quint8 m_syncByte = '?';
-    static const int m_rxTimeoutInterval_ms = 5000;
+    static const int m_rxTimeoutInterval_ms = 60000;
 };
 
 #endif // CSERIALTHREAD_H

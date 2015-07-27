@@ -61,6 +61,9 @@ void CSettingsDialog::on_pbSerialCheck_clicked()
     connect(mp_serialThread, SIGNAL(rxTimeout(const int&)),
             this, SLOT(at_mp_SerialThread_rxTimeout(const int&)), Qt::UniqueConnection);
 
+    connect(this, SIGNAL(closePort()),
+            mp_serialThread, SLOT(on_closePort()), Qt::UniqueConnection);
+
     emit send_getFirmwareID();
 }
 
@@ -73,11 +76,10 @@ void CSettingsDialog::at_received_getFirmwareID(const MeasureUtility::union32_t&
                               .arg(id.id8[3]).arg(id.id8[2]).arg(id.id8[1]).arg(id.id8[0]));
     msgBox.exec();
 
-    mp_serialThread->quit();
-    mp_serialThread->wait();
-
     ui->pbSerialCheck->setEnabled(true);
     ui->cbSerialPort->setEnabled(true);
+
+    emit closePort();
 }
 
 void CSettingsDialog::at_mp_SerialThread_rxTimeout(const int& command)
@@ -91,6 +93,8 @@ void CSettingsDialog::at_mp_SerialThread_rxTimeout(const int& command)
 
     ui->pbSerialCheck->setEnabled(true);
     ui->cbSerialPort->setEnabled(true);
+
+    emit closePort();
 }
 
 void CSettingsDialog::at_mp_SerialThread_openPort(const int& val)
@@ -99,12 +103,14 @@ void CSettingsDialog::at_mp_SerialThread_openPort(const int& val)
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText(QString("Port %1 is bussy").arg(ui->cbSerialPort->currentText()));
+        msgBox.setText(QString("Port %1 is busy").arg(ui->cbSerialPort->currentText()));
         msgBox.setInformativeText(QString("Cannot open specified port."));\
         msgBox.exec();
 
         ui->pbSerialCheck->setEnabled(true);
         ui->cbSerialPort->setEnabled(true);
+
+        emit closePort();
     }
 }
 

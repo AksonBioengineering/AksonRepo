@@ -16,7 +16,7 @@ public:
     virtual void changeConnections(const bool);
 
 signals:
-    void send_takeMeasEis(const quint8&, const quint32&, const quint32&, const quint16&, const quint8&);
+    void send_takeMeasEis(const quint8&, const union32_t&, const union32_t&, const quint16&, const quint8&);
 
 private slots:
     void on_received_takeMeasEis(const bool&);
