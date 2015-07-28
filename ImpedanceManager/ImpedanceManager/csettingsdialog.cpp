@@ -114,6 +114,24 @@ void CSettingsDialog::at_mp_SerialThread_openPort(const int& val)
     }
 }
 
+void CSettingsDialog::on_bbButtons_accepted()
+{
+    QList<SettingParam_t> paramList;
+
+    SettingParam_t serialPort;
+    serialPort.m_name = XML_FIELD_PORT;
+    serialPort.m_value = ui->cbSerialPort->currentText();
+    paramList.append(serialPort);
+
+    CSettingsManager::instance()->writeSettings(paramList);
+}
+
+
+
+
+
+
+
 
 
 

@@ -8,6 +8,7 @@ QT       += core gui serialport
 QT       += concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
 RC_FILE = app.rc
 TARGET = ImpedanceManager

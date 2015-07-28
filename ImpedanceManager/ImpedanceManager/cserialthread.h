@@ -84,7 +84,7 @@ private:
     QTimer* mp_RxTimeoutTimer;
 
     static const quint8 m_syncByte = '?';
-    static const int m_rxTimeoutInterval_ms = 60000;
+    static const int m_rxTimeoutInterval_ms = 5000;
 };
 
 #endif // CSERIALTHREAD_H

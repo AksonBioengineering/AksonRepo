@@ -33,6 +33,8 @@ private slots:
     void at_mp_SerialThread_rxTimeout(const int&);
     void at_received_getFirmwareID(const MeasureUtility::union32_t&);
 
+    void on_bbButtons_accepted();
+
 private:
     Ui::CSettingsDialog *ui;
     CSerialThread* mp_serialThread;
