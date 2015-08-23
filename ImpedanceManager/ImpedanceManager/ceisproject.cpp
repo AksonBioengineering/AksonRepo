@@ -6,6 +6,9 @@ CEisProject::CEisProject(CSerialThread* serialThread, QWidget *parent) : CGeneri
     initFields();
 
     mp_serialThread = serialThread;
+
+    m_minFreq = 0.01;
+    m_maxFreq = 1000000;
 }
 
 CEisProject::~CEisProject()
@@ -29,7 +32,9 @@ void CEisProject::initPlot()
 
 void CEisProject::initFields()
 {
-    QIntValidator* freQvalidator = new QIntValidator(1, 1000000, this);
+    DoubleValidator* freQvalidator =
+            new DoubleValidator(m_minFreq, m_maxFreq, this);
+
     ui->leFreqStart->setValidator(freQvalidator);
     ui->leFreqStep->setValidator(freQvalidator);
     ui->leFreqStop->setValidator(freQvalidator);
@@ -78,7 +83,19 @@ void CEisProject::takeMeasure()
         return;
     }
 
+    clearData();
+
     emit send_takeMeasEis(amp, freqStart, freqEnd, freqStep, (quint8)step);
+}
+
+void CEisProject::clearData()
+{
+    m_x.clear();
+    m_y.clear();
+    m_z.clear();
+
+    customPlot->graph(0)->clearData();
+    customPlot->replot();
 }
 
 void CEisProject::changeConnections(const bool con)
@@ -143,7 +160,7 @@ void CEisProject::on_received_giveMeasChunkEis(const union32_t& realImp,
                                                const union32_t& freq)
 {
     m_x.append(realImp.idFl);
-    m_y.append(ImagImp.idFl);
+    m_y.append(ImagImp.idFl * -1);
     m_z.append(freq.idFl);
 
     qDebug("Point received. Real: %f Imag %f Freq %f", m_x.last(), m_y.last(), m_z.last());

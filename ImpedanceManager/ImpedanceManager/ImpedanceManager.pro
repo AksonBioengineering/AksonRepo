@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     ceisproject.cpp \
     cnewprojectdialog.cpp \
     csettingsmanager.cpp \
-    cserialthread.cpp
+    cserialthread.cpp \
+    doublevalidator.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -33,7 +34,9 @@ HEADERS  += mainwindow.h \
     cnewprojectdialog.h \
     MeasureUtility.h \
     csettingsmanager.h \
-    cserialthread.h
+    cserialthread.h \
+    doublevalidator.h \
+    changelog.h
 
 FORMS    += mainwindow.ui \
     csettingsdialog.ui \

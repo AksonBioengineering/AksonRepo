@@ -51,7 +51,7 @@ void MainWindow::initComponents()
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
     m_appVersion.ver8[1] = 0;         // new functionalities
-    m_appVersion.ver8[0] = 0;         // changes to existing functionalities
+    m_appVersion.ver8[0] = 1;         // changes to existing functionalities
     setWindowTitle(APPNAME + getAppVersion());
 
     QString settingsFile = QApplication::applicationDirPath() + "/settings.xms";
@@ -176,7 +176,7 @@ void MainWindow::on_action_New_triggered()
             case EMeasures_t::eEIS:
             {
                 CGenericProject* measIntstance = new CEisProject(mp_serialThread);
-                ui->tbMain->addTab(measIntstance, "Untitled*");
+                ui->tbMain->addTab(measIntstance, "Untitled* (EIS)");
 
                 connect(measIntstance, SIGNAL(measureStarted()),
                         this, SLOT(at_measureStarted()));

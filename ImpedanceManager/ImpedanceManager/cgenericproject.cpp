@@ -27,10 +27,10 @@ void CGenericProject::initPlot()
     customPlot->setFocusPolicy(Qt::ClickFocus);
     customPlot->xAxis->setAutoTickStep(false);
     customPlot->yAxis->setAutoTickStep(false);
-    customPlot->xAxis->setTickStep(100);
-    customPlot->yAxis->setTickStep(100);
-    customPlot->xAxis->setRange(0, 1000);
-    customPlot->yAxis->setRange(0, 1000);
+    customPlot->xAxis->setTickStep(10000);
+    customPlot->yAxis->setTickStep(10000);
+    customPlot->xAxis->setRange(0, 100000);
+    customPlot->yAxis->setRange(0, 100000);
 
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
     connect(customPlot, SIGNAL(mousePress(QMouseEvent*)),
@@ -77,4 +77,9 @@ void CGenericProject::initFields()
 void CGenericProject::changeConnections(const bool)
 {
     qCritical() << "ERROR: Base class changeConnections method called!";
+}
+
+void CGenericProject::clearData()
+{
+    qCritical() << "ERROR: Base class clearData method called!";
 }

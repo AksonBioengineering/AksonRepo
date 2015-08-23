@@ -9,6 +9,7 @@
 #include "qcustomplot.h"
 #include "MeasureUtility.h"
 #include "cserialthread.h"
+#include "doublevalidator.h"
 
 using namespace MeasureUtility;
 
@@ -39,6 +40,7 @@ private slots:
 private:
     virtual void initPlot();
     virtual void initFields();
+    virtual void clearData();
 
 protected:
     Ui::CGenericProject *ui;
@@ -49,6 +51,9 @@ protected:
     QVector<double> m_z;
 
     CSerialThread* mp_serialThread;
+
+    double m_minFreq = 1;
+    double m_maxFreq = 1000000;
 };
 
 #endif // CGENERICPROJECT_H

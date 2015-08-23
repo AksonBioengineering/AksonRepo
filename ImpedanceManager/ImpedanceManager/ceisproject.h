@@ -14,6 +14,7 @@ public:
     virtual EMeasures_t measureType(){ return EMeasures_t::eEIS; }
     virtual void takeMeasure();
     virtual void changeConnections(const bool);
+    virtual void clearData();
 
 signals:
     void send_takeMeasEis(const quint8&, const union32_t&, const union32_t&, const quint16&, const quint8&);
