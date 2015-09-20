@@ -50,8 +50,8 @@ void MainWindow::initComponents()
     qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
-    m_appVersion.ver8[1] = 0;         // new functionalities
-    m_appVersion.ver8[0] = 1;         // changes to existing functionalities
+    m_appVersion.ver8[1] = 1;         // new functionalities
+    m_appVersion.ver8[0] = 0;         // changes to existing functionalities
     setWindowTitle(APPNAME + getAppVersion());
 
     QString settingsFile = QApplication::applicationDirPath() + "/settings.xms";
@@ -307,4 +307,112 @@ void MainWindow::on_action_Start_measure_triggered()
             currentMeasObject(ui->tbMain->currentIndex())->takeMeasure();
         }
     }
+}
+
+void MainWindow::on_action_Zoom_out_triggered()
+{
+    if((int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        currentMeasObject(ui->tbMain->currentIndex())->zoomOut();
+    }
+}
+
+void MainWindow::on_action_Zoom_in_triggered()
+{
+    if((int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        currentMeasObject(ui->tbMain->currentIndex())->zoomIn();
+    }
+}
+
+void MainWindow::on_action_Zoom_to_screen_triggered()
+{
+    if((int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        currentMeasObject(ui->tbMain->currentIndex())->zoomToPlot();
+    }
+}
+
+void MainWindow::on_action_Export_CSV_triggered()
+{
+    if(!(int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        qCritical() << "No measure project opened. No CSV exported!";
+        return;
+    }
+
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setDirectory(QDir::currentPath());
+    dialog.setWindowTitle("Export to CSV as...");
+    dialog.setNameFilter(tr("CSV Files (*.csv)"));
+    dialog.setViewMode(QFileDialog::Detail);
+
+    QStringList fileNames;
+    if(dialog.exec())
+        fileNames = dialog.selectedFiles();
+
+    if (fileNames.length() > 1)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("File save error!");
+        msgBox.setInformativeText("Cannot select multiple files!");
+        msgBox.exec();
+        return;
+    }
+    else if (0 == fileNames.length())
+        return;
+
+    if (!fileNames[0].endsWith(".csv"))
+        fileNames[0].append(".csv");
+
+    saveCsvFile(fileNames[0]);
+}
+
+void MainWindow::saveCsvFile(const QString& fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, tr("Oven Manager"),
+                             tr("Cannot save file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    if((int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        if (!currentMeasObject(ui->tbMain->currentIndex())->saveToCsv(&file))
+        {
+            ui->statusBar->showMessage(QString("File %1 exported to CSV successfuly").arg(fileName), 5000);
+            file.close();
+            return;
+        }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("File open error!");
+            msgBox.setInformativeText("Saving file failed!");
+            msgBox.exec();
+            file.close();
+            return;
+        }
+    }
+    else
+    {
+        qCritical() << "No measure project opened. No CSV exported!";
+    }
+}
+
+void MainWindow::on_action_Points_labels_triggered()
+{
+    if(!(int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        qCritical() << "Cannot toggle labels for non-opened measure profile";
+        return;
+    }
+
+    currentMeasObject(ui->tbMain->currentIndex())->toggleLabels();
 }

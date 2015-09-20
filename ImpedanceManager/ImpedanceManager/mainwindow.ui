@@ -57,6 +57,8 @@
     <addaction name="action_Save"/>
     <addaction name="action_Save_as"/>
     <addaction name="separator"/>
+    <addaction name="action_Export_CSV"/>
+    <addaction name="separator"/>
     <addaction name="action_Settings"/>
    </widget>
    <widget class="QMenu" name="menu_Connection">
@@ -75,7 +77,18 @@
     <addaction name="separator"/>
     <addaction name="menuMeasure"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="action_Zoom_in"/>
+    <addaction name="action_Zoom_out"/>
+    <addaction name="action_Zoom_to_screen"/>
+    <addaction name="separator"/>
+    <addaction name="action_Points_labels"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
    <addaction name="menu_Connection"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -90,11 +103,17 @@
    <addaction name="action_Save"/>
    <addaction name="action_Save_as"/>
    <addaction name="separator"/>
+   <addaction name="action_Points_labels"/>
+   <addaction name="separator"/>
    <addaction name="action_Connect"/>
    <addaction name="separator"/>
    <addaction name="action_Start_measure"/>
    <addaction name="action_Pause_measure"/>
    <addaction name="action_Cancel_measure"/>
+   <addaction name="separator"/>
+   <addaction name="action_Zoom_in"/>
+   <addaction name="action_Zoom_out"/>
+   <addaction name="action_Zoom_to_screen"/>
    <addaction name="separator"/>
    <addaction name="action_Settings"/>
   </widget>
@@ -211,6 +230,78 @@
    </property>
    <property name="toolTip">
     <string>Cancel measure</string>
+   </property>
+  </action>
+  <action name="action_Zoom_out">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Zoom Out_24x24.png</normaloff>:/more24/Zoom Out_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Zoom out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="action_Zoom_in">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Zoom In_24x24.png</normaloff>:/more24/Zoom In_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Zoom in</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom in</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+  </action>
+  <action name="action_Zoom_to_screen">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/more24/Zoom To_Screen_24x24.png</normaloff>:/more24/Zoom To_Screen_24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Zoom to plot</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom to plot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="action_Export_CSV">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/24/file-excel.png</normaloff>:/24/file-excel.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Export CSV</string>
+   </property>
+   <property name="toolTip">
+    <string>Export data to .csv</string>
+   </property>
+  </action>
+  <action name="action_Points_labels">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/24/tag.png</normaloff>:/24/tag.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Points labels</string>
+   </property>
+   <property name="toolTip">
+    <string>Toogle points labels</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

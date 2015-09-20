@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QVector>
 #include <QIntValidator>
+#include <QStringList>
+#include <QIODevice>
 
 #include "ui_cgenericproject.h"
 #include "qcustomplot.h"
@@ -29,6 +31,14 @@ public:
     virtual void takeMeasure();
     virtual void changeConnections(const bool);
 
+    virtual void zoomOut();
+    virtual void zoomIn();
+    virtual void zoomToPlot();
+
+    virtual int saveToCsv(QIODevice* device);
+
+    void toggleLabels();
+
 signals:
     void measureStarted();
     void measureFinished();
@@ -37,12 +47,30 @@ private slots:
     void mousePress();
     void mouseWheel(QWheelEvent* event);
 
+    void rangeYChanged(const QCPRange &newRange, const QCPRange &oldRange);
+    void rangeXChanged(const QCPRange &newRange, const QCPRange &oldRange);
+
 private:
     virtual void initPlot();
     virtual void initFields();
     virtual void clearData();
+    virtual void updateTree();
+
+    virtual int insertLabels();
+    virtual void clearLabels();
 
 protected:
+    void autoScalePlot();
+
+    double getYMax();
+    double getYMin();
+    double getXMax();
+    double getXMin();
+
+    void setNewRange(QCPAxis* axis, const double& upperRange,
+                                const QCPRange &newRange, const QCPRange &oldRange);
+    void setLabelsVisible(bool val);
+
     Ui::CGenericProject *ui;
 
     QCustomPlot* customPlot;
@@ -54,6 +82,15 @@ protected:
 
     double m_minFreq = 1;
     double m_maxFreq = 1000000;
+    int m_upperXRange = 1000000;
+    int m_upperYRange = 1000000;
+    QVector<QCPItemText*> m_pointLabels;
+    bool m_labelsVisible;
+
+    constexpr static double zoomInFactor = 1 / 1.5;
+    constexpr static double zoomOutFactor = 1.5;
+
+    QStringList m_treeLabels;
 };
 
 #endif // CGENERICPROJECT_H

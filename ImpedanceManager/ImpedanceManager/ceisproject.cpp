@@ -9,6 +9,8 @@ CEisProject::CEisProject(CSerialThread* serialThread, QWidget *parent) : CGeneri
 
     m_minFreq = 0.01;
     m_maxFreq = 1000000;
+
+    updateTree();
 }
 
 CEisProject::~CEisProject()
@@ -93,6 +95,8 @@ void CEisProject::clearData()
     m_x.clear();
     m_y.clear();
     m_z.clear();
+    ui->twPoints->clear();
+    clearLabels();
 
     customPlot->graph(0)->clearData();
     customPlot->replot();
@@ -152,6 +156,7 @@ void CEisProject::on_received_takeMeasEis(const bool& ack)
 
 void CEisProject::on_received_endMeasEis()
 {
+    insertLabels();
     emit measureFinished();
 }
 
@@ -163,11 +168,100 @@ void CEisProject::on_received_giveMeasChunkEis(const union32_t& realImp,
     m_y.append(ImagImp.idFl * -1);
     m_z.append(freq.idFl);
 
-    qDebug("Point received. Real: %f Imag %f Freq %f", m_x.last(), m_y.last(), m_z.last());
-
+    addEisPoint(realImp.idFl, ImagImp.idFl, freq.idFl);
     customPlot->graph(0)->setData(m_x, m_y);
-    customPlot->replot();
+    autoScalePlot();
+
+    qDebug("Point received. Real: %f Imag %f Freq %f", realImp.idFl, ImagImp.idFl, freq.idFl);
 }
+
+void CEisProject::updateTree()
+{
+    QStringList list;
+    list << QObject::tr("Real[Ohm]") << QObject::tr("Imag[Ohm]") << QObject::tr("Freq[Hz]");
+
+    ui->twPoints->setColumnCount(list.size());
+    ui->twPoints->setHeaderLabels(list);
+    ui->twPoints->header()->resizeSection(0, 66);
+    ui->twPoints->header()->resizeSection(1, 66);
+    ui->twPoints->header()->resizeSection(2, 66);
+}
+
+void CEisProject::addEisPoint(const float& real, const float& imag, const float& freq)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem(ui->twPoints);
+
+    item->setText(0, QString::number(real));
+    item->setText(1, QString::number(imag));
+    item->setText(2, QString::number(freq));
+}
+
+int CEisProject::saveToCsv(QIODevice* device)
+{
+    if (m_x.size() != m_y.size() && m_x.size() != m_z.size())
+    {
+        qCritical() << "Cannot save to CSV: Different vector x, y, z sizes!";
+        return -1;
+    }
+
+    QTextStream outstream(device);
+    outstream << "Real[Ohm],Imaginary[Ohm],Frequency[Hz]\n";
+
+    for (int i = 0; i < m_x.size(); i++)
+    {
+        outstream << QString::number(m_x[i]) << ","
+                  << QString::number(m_y[i]) << ","
+                  << QString::number(m_z[i]) << "\n";
+    }
+
+    return 0;
+}
+
+int CEisProject::insertLabels()
+{
+    if (m_x.size() != m_y.size() && m_x.size() != m_z.size())
+    {
+        qCritical() << "Cannot save to CSV: Different vector x, y, z sizes!";
+        return -1;
+    }
+
+    QFont font("Courier", 12);
+    for (int i = 0; i < m_x.size(); i++)
+    {
+        QCPItemText *textLabel = new QCPItemText(customPlot);
+        customPlot->addItem(textLabel);
+        textLabel->setPositionAlignment(Qt::AlignBottom|Qt::AlignHCenter);
+        textLabel->position->setType(QCPItemPosition::ptPlotCoords);
+        textLabel->position->setCoords(m_x[i], m_y[i]); // place position at center/top of axis rect
+
+        textLabel->setFont(font);
+        textLabel->setTextAlignment(Qt::AlignLeft);
+        textLabel->setText(QString("Real= %1\nImag=%2\nFreq= %3")
+                           .arg(m_x[i]).arg(m_y[i] * -1).arg(m_z[i]));
+
+        textLabel->setPen(QPen(Qt::black));
+        textLabel->setBrush(QBrush(Qt::yellow));
+
+        textLabel->setVisible(m_labelsVisible);
+        m_pointLabels.append(textLabel);
+    }
+
+    customPlot->replot();
+    return 0;
+}
+
+void CEisProject::clearLabels()
+{
+    for (int i = 0; i < m_pointLabels.size(); i++)
+    {
+        customPlot->removeItem(m_pointLabels[i]);
+        delete m_pointLabels[i];
+    }
+
+    m_pointLabels.clear();
+}
+
+
 
 
 

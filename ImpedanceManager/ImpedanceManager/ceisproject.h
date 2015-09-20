@@ -16,6 +16,8 @@ public:
     virtual void changeConnections(const bool);
     virtual void clearData();
 
+    virtual int saveToCsv(QIODevice* device);
+
 signals:
     void send_takeMeasEis(const quint8&, const union32_t&, const union32_t&, const quint16&, const quint8&);
 
@@ -27,6 +29,12 @@ private slots:
 private:
     virtual void initPlot();
     virtual void initFields();
+    virtual void updateTree();
+
+    virtual int insertLabels();
+    virtual void clearLabels();
+
+    void addEisPoint(const float& real, const float& imag, const float& freq);
 };
 
 #endif // CEISPROJECT_H

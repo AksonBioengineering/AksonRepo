@@ -52,7 +52,19 @@ private slots:
 
     void on_action_Start_measure_triggered();
 
+    void on_action_Zoom_out_triggered();
+
+    void on_action_Zoom_in_triggered();
+
+    void on_action_Zoom_to_screen_triggered();
+
+    void on_action_Export_CSV_triggered();
+
+    void on_action_Points_labels_triggered();
+
 private:
+    void saveCsvFile(const QString& fileName);
+
     Ui::MainWindow *ui;
 
     union version_t
