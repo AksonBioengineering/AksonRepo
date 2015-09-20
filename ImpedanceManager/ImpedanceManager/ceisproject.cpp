@@ -255,7 +255,6 @@ void CEisProject::clearLabels()
     for (int i = 0; i < m_pointLabels.size(); i++)
     {
         customPlot->removeItem(m_pointLabels[i]);
-        delete m_pointLabels[i];
     }
 
     m_pointLabels.clear();
