@@ -2,14 +2,13 @@
 
 CEisProject::CEisProject(CSerialThread* serialThread, QWidget *parent) : CGenericProject(serialThread, parent)
 {
+    Q_ASSERT(serialThread);
+    //Q_ASSERT(parent);
+
     initPlot();
     initFields();
 
     mp_serialThread = serialThread;
-
-    m_minFreq = 0.01;
-    m_maxFreq = 1000000;
-
     updateTree();
 }
 
@@ -29,51 +28,98 @@ void CEisProject::initPlot()
     customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     customPlot->graph(0)->setName("EIS measure");
 
+    m_upperXRange = 100000;
+    m_upperYRange = 100000;
+
+    customPlot->xAxis->setTickStep(10000);
+    customPlot->yAxis->setTickStep(10000);
+    customPlot->xAxis->setRange(0, m_upperXRange);
+    customPlot->yAxis->setRange(0, m_upperYRange);
+
+    /*
+    customPlot->xAxis->setSubTickCount(10);
+    customPlot->yAxis->setSubTickCount(10);
+    customPlot->xAxis->setScaleLogBase(10);
+    customPlot->yAxis->setScaleLogBase(10);
+    customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
+    customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
+   */
+
     customPlot->replot();
 }
 
 void CEisProject::initFields()
 {
+    // amplitude
+    m_labelAmplitude.setText("Amp[mV]");
+    ui->glControls->addWidget(&m_labelAmplitude, 0, 0);
+    m_leAmplitude.setMaximumWidth(m_maxItemWidth);
+    ui->glControls->addWidget(&m_leAmplitude, 1, 0);
+
+    // freq start
+    m_labelFreqStart.setText("Freq start");
+    ui->glControls->addWidget(&m_labelFreqStart, 0, 1);
+    m_leFreqStart.setMaximumWidth(m_maxItemWidth);
+    ui->glControls->addWidget(&m_leFreqStart, 1, 1);
+
+    // freq stop
+    m_labelFreqStop.setText("Freq stop");
+    ui->glControls->addWidget(&m_labelFreqStop, 2, 0);
+    m_leFreqStop.setMaximumWidth(m_maxItemWidth);
+    ui->glControls->addWidget(&m_leFreqStop, 3, 0);
+
+    // freq step
+    m_labelFreqStep.setText("Freq step");
+    ui->glControls->addWidget(&m_labelFreqStep, 2, 1);
+    m_leFreqStep.setMaximumWidth(m_maxItemWidth);
+    ui->glControls->addWidget(&m_leFreqStep, 3, 1);
+
+    // freq type
+    m_labelStepType.setText("Freq type");
+    ui->glControls->addWidget(&m_labelStepType, 4, 0);
+    m_cbTypeStep.setMaximumWidth(m_maxItemWidth);
+    ui->glControls->addWidget(&m_cbTypeStep, 5, 0);
+
+    double m_minFreq = 0.01;
+    double m_maxFreq = 1000000;
     DoubleValidator* freQvalidator =
             new DoubleValidator(m_minFreq, m_maxFreq, this);
 
-    ui->leFreqStart->setValidator(freQvalidator);
-    ui->leFreqStep->setValidator(freQvalidator);
-    ui->leFreqStop->setValidator(freQvalidator);
+    m_leFreqStart.setValidator(freQvalidator);
+    m_leFreqStep.setValidator(freQvalidator);
+    m_leFreqStop.setValidator(freQvalidator);
 
     QIntValidator* ampValidator = new QIntValidator(1, 200, this);
-    ui->leAmplitude->setValidator(ampValidator);
+    m_leAmplitude.setValidator(ampValidator);
 
-    ui->cbTypeStep->addItem("Lin");
-    ui->cbTypeStep->addItem("Log");
+    m_cbTypeStep.addItem("Lin");
+    m_cbTypeStep.addItem("Log");
 }
 
 void CEisProject::takeMeasure()
 {
-    qDebug() << "Sending EIS measure request";
-
     bool ok;
     QString badParameters;
 
-    quint8 amp = (quint8)ui->leAmplitude->text().toInt(&ok, 10);
+    quint8 amp = (quint8)m_leAmplitude.text().toInt(&ok, 10);
     if (!amp)
-        badParameters += ui->lAmplitude->text() + "\n";
+        badParameters += m_labelAmplitude.text() + "\n";
 
     union32_t freqStart;
-    freqStart.idFl = (float)ui->leFreqStart->text().toDouble(&ok);
+    freqStart.idFl = (float)m_leFreqStart.text().toDouble(&ok);
     if (!freqStart.id32)
-        badParameters += ui->lFreqStart->text() + "\n";
+        badParameters += m_labelFreqStart.text() + "\n";
 
     union32_t freqEnd;
-    freqEnd.idFl = (float)ui->leFreqStop->text().toDouble(&ok);
+    freqEnd.idFl = (float)m_leFreqStop.text().toDouble(&ok);
     if (!freqEnd.id32)
-        badParameters += ui->lFreqEnd->text() + "\n";
+        badParameters += m_labelFreqStop.text() + "\n";
 
-    quint16 freqStep = (quint16)ui->leFreqStep->text().toInt(&ok, 10);
+    quint16 freqStep = (quint16)m_leFreqStep.text().toInt(&ok, 10);
     if (!freqStep)
-        badParameters += ui->lFreqStep->text() + "\n";
+        badParameters += m_labelFreqStep.text() + "\n";
 
-    EStepType_t step = (EStepType_t)ui->cbTypeStep->currentIndex();
+    EStepType_t step = (EStepType_t)m_cbTypeStep.currentIndex();
 
     if(badParameters.length())
     {
@@ -86,20 +132,8 @@ void CEisProject::takeMeasure()
     }
 
     clearData();
-
+    qDebug() << "Sending EIS measure request";
     emit send_takeMeasEis(amp, freqStart, freqEnd, freqStep, (quint8)step);
-}
-
-void CEisProject::clearData()
-{
-    m_x.clear();
-    m_y.clear();
-    m_z.clear();
-    ui->twPoints->clear();
-    clearLabels();
-
-    customPlot->graph(0)->clearData();
-    customPlot->replot();
 }
 
 void CEisProject::changeConnections(const bool con)
@@ -149,9 +183,7 @@ void CEisProject::on_received_takeMeasEis(const bool& ack)
         msgBox.exec();
     }
     else
-    {
         emit measureStarted();
-    }
 }
 
 void CEisProject::on_received_endMeasEis()
@@ -172,7 +204,7 @@ void CEisProject::on_received_giveMeasChunkEis(const union32_t& realImp,
     customPlot->graph(0)->setData(m_x, m_y);
     autoScalePlot();
 
-    qDebug("Point received. Real: %f Imag %f Freq %f", realImp.idFl, ImagImp.idFl, freq.idFl);
+    qDebug("EIS point received. Real: %f Imag %f Freq %f", realImp.idFl, ImagImp.idFl, freq.idFl);
 }
 
 void CEisProject::updateTree()
@@ -198,6 +230,8 @@ void CEisProject::addEisPoint(const float& real, const float& imag, const float&
 
 int CEisProject::saveToCsv(QIODevice* device)
 {
+    Q_ASSERT(device);
+
     if (m_x.size() != m_y.size() && m_x.size() != m_z.size())
     {
         qCritical() << "Cannot save to CSV: Different vector x, y, z sizes!";
@@ -221,7 +255,7 @@ int CEisProject::insertLabels()
 {
     if (m_x.size() != m_y.size() && m_x.size() != m_z.size())
     {
-        qCritical() << "Cannot save to CSV: Different vector x, y, z sizes!";
+        qCritical() << "Cannot insert labels: Different vector x, y, z sizes!";
         return -1;
     }
 
@@ -250,15 +284,7 @@ int CEisProject::insertLabels()
     return 0;
 }
 
-void CEisProject::clearLabels()
-{
-    for (int i = 0; i < m_pointLabels.size(); i++)
-    {
-        customPlot->removeItem(m_pointLabels[i]);
-    }
 
-    m_pointLabels.clear();
-}
 
 
 

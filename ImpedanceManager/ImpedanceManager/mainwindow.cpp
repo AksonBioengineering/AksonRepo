@@ -5,6 +5,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    //Q_ASSERT(parent);
+
     ui->setupUi(this);
     initComponents();
 
@@ -24,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(mp_serialThread, SIGNAL(rxTimeout(const int&)),
             this, SLOT(at_mp_SerialThread_rxTimeout(const int&)), Qt::UniqueConnection);
 
+    this->setWindowState(Qt::WindowMaximized);
 }
 
 MainWindow::~MainWindow()
@@ -50,7 +53,7 @@ void MainWindow::initComponents()
     qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
-    m_appVersion.ver8[1] = 1;         // new functionalities
+    m_appVersion.ver8[1] = 2;         // new functionalities
     m_appVersion.ver8[0] = 0;         // changes to existing functionalities
     setWindowTitle(APPNAME + getAppVersion());
 
@@ -177,6 +180,18 @@ void MainWindow::on_action_New_triggered()
             {
                 CGenericProject* measIntstance = new CEisProject(mp_serialThread);
                 ui->tbMain->addTab(measIntstance, "Untitled* (EIS)");
+
+                connect(measIntstance, SIGNAL(measureStarted()),
+                        this, SLOT(at_measureStarted()));
+                connect(measIntstance, SIGNAL(measureFinished()),
+                        this, SLOT(at_measureFinished()));
+                break;
+            }
+
+            case EMeasures_t::eCV:
+            {
+                CGenericProject* measIntstance = new CCvProject(mp_serialThread);
+                ui->tbMain->addTab(measIntstance, "Untitled* (CV)");
 
                 connect(measIntstance, SIGNAL(measureStarted()),
                         this, SLOT(at_measureStarted()));

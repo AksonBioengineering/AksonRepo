@@ -24,6 +24,10 @@ private slots:
 
     void on_buttonBox_accepted();
 
+    void on_rbEis_clicked(bool checked);
+
+    void on_rbCv_clicked(bool checked);
+
 private:
     Ui::CNewProjectDialog *ui;
 

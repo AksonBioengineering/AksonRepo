@@ -20,10 +20,13 @@ class CSerialThread : public QThread
 public:
     enum class ESerialCommand_t
     {
-          e_getFirmwareID         = 0x01
-        , e_takeMeasEis           = 0x02
-        , e_giveMeasChunkEis      = 0x03
-        , e_endMeasEis            = 0x04
+          e_getFirmwareID           = 0x01
+        , e_takeMeasEis             = 0x02
+        , e_giveMeasChunkEis        = 0x03
+        , e_endMeasEis              = 0x04
+        , e_takeMeasCv              = 0x05
+        , e_giveMeasChunkCv         = 0x06
+        , e_endMeasCv               = 0x07
     };
 
     typedef struct
@@ -44,12 +47,18 @@ signals:
     void openPort(const int& val);
     void rxTimeout(const int&);
 
-    // frames:                                                              // Sender:
+    // frames (IM- impredance manager, ES- embedded system):            // Sender:
     void received_getFirmwareID(const MeasureUtility::union32_t& id);   // IM
-    void received_takeMeasEis(const bool& ack);                         // IM
-    void received_giveMeasChunkEis(const union32_t&, const union32_t&, const union32_t&); // ES
 
+    void received_takeMeasEis(const bool& ack);                         // IM
+    void received_giveMeasChunkEis(const union32_t&, const union32_t&,
+                                   const union32_t&);                   // ES
     void received_endMeasEis();                                         // ES
+
+    void received_takeMeasCv(const bool& ack);                          // IM
+    void received_giveMeasChunkCv(const quint16&, const union32_t&,
+                             const union32_t&);                         // ES
+    void received_endMeasCv();                                          // ES
 
 public slots:
     void on_readyRead();
@@ -64,6 +73,12 @@ public slots:
                              const quint16&,
                              const quint8&);
 
+    void on_send_takeMeasCv( const quint16&,
+                             const quint16&,
+                             const quint8&,
+                             const quint16&,
+                             const quint16&);
+
 private:
     quint16 getCrc(const QByteArray& bArray);
     quint16 getCrc(const ESerialFrame_t& frame);
@@ -75,6 +90,7 @@ private:
 
     // frames
     void send_endMeasEis();
+    void send_endMeasCv();
 
     QSerialPort* mp_serial;
     QByteArray m_sendBuffer;

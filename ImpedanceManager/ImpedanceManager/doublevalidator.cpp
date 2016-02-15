@@ -5,7 +5,9 @@ DoubleValidator::DoubleValidator(double min, double max, QObject *parent) :
     , mRexp("[+]?[0-9]+\\.?[0-9]*([eE][+]?[0-9]+)?")
     , mMin(min)
     , mMax(max)
-{}
+{
+    //Q_ASSERT(parent);
+}
 
 DoubleValidator::State DoubleValidator::validate(QString &input, int &pos) const
 {

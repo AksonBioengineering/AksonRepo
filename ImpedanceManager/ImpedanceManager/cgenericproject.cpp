@@ -4,6 +4,9 @@ CGenericProject::CGenericProject(CSerialThread* serialThread, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CGenericProject)
 {
+    Q_ASSERT(serialThread);
+    //Q_ASSERT(parent);
+
     ui->setupUi(this);
     initPlot();
 
@@ -28,10 +31,6 @@ void CGenericProject::initPlot()
     customPlot->setFocusPolicy(Qt::ClickFocus);
     customPlot->xAxis->setAutoTickStep(false);
     customPlot->yAxis->setAutoTickStep(false);
-    customPlot->xAxis->setTickStep(10000);
-    customPlot->yAxis->setTickStep(10000);
-    customPlot->xAxis->setRange(0, 100000);
-    customPlot->yAxis->setRange(0, 100000);
 
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
     connect(customPlot, SIGNAL(mousePress(QMouseEvent*)),
@@ -61,6 +60,8 @@ void CGenericProject::mousePress()
 
 void CGenericProject::mouseWheel(QWheelEvent* event)
 {
+    Q_ASSERT(event);
+
     // if an axis is selected, only allow the direction of that axis to be zoomed
     // if no axis is selected, both directions may be zoomed
     if (customPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
@@ -98,7 +99,14 @@ void CGenericProject::changeConnections(const bool)
 
 void CGenericProject::clearData()
 {
-    qCritical() << "ERROR: Base class clearData method called!";
+    m_x.clear();
+    m_y.clear();
+    m_z.clear();
+    ui->twPoints->clear();
+    clearLabels();
+
+    customPlot->graph(0)->clearData();
+    customPlot->replot();
 }
 
 void CGenericProject::updateTree()
@@ -120,15 +128,19 @@ int CGenericProject::insertLabels()
 
 void CGenericProject::clearLabels()
 {
-    qCritical() << "ERROR: Base class clearLabels method called!";
+    for (int i = 0; i < m_pointLabels.size(); i++)
+        customPlot->removeItem(m_pointLabels[i]);
+
+    m_pointLabels.clear();
 }
+
 
 void CGenericProject::autoScalePlot()
 {
-    double topX = qRound(getXMax());
-    double botX = qRound(getXMin());
-    double topY = qRound(getYMax());
-    double botY = qRound(getYMin());
+    double topX = getXMax();
+    double botX = getXMin();
+    double topY = getYMax();
+    double botY = getYMin();
 
     if ((topX + 1) <= m_upperXRange)
         topX++;
@@ -204,18 +216,23 @@ double CGenericProject::getXMin()
 void CGenericProject::setNewRange(QCPAxis* axis, const double& upperRange,
                              const QCPRange &newRange, const QCPRange &oldRange)
 {
-    if (newRange.lower < 1)
+    Q_ASSERT(axis);
+
+    if (newRange.lower < 0.000001)
     {
-        if (newRange.upper <= 1)
+        if (newRange.upper <= 0.000001)
         {
-            axis->setRangeUpper(1);
+            axis->setRangeUpper(0.000001);
         }
 
-        axis->setRangeLower(0);
+        if (axis->scaleType() == QCPAxis::stLinear)
+            axis->setRangeLower(0);
+        else
+            axis->setRangeLower(1);
     }
-    else if (newRange.upper <= 1)
+    else if (newRange.upper <= 0.000001)
     {
-        axis->setRangeUpper(1);
+        axis->setRangeUpper(0.000001);
     }
 
     if (newRange.upper >= upperRange)
@@ -223,8 +240,8 @@ void CGenericProject::setNewRange(QCPAxis* axis, const double& upperRange,
         axis->setRangeUpper(upperRange);
     }
 
-    double oldStep = qRound((oldRange.upper - oldRange.lower) / 10);
-    double step = qRound((newRange.upper - newRange.lower) / 10);
+    double oldStep = (oldRange.upper - oldRange.lower) / 10;
+    double step = (newRange.upper - newRange.lower) / 10;
 
     if ((step != oldStep) && (step > 0))
         axis->setTickStep(step);

@@ -20,10 +20,6 @@ int CSettingsManager::setFilePath(const QString& path)
         return -1;
 
     QFile file(path);
-
-    if(!file.exists())
-        return -2;
-
     m_fileName = path;
     return 0;
 }

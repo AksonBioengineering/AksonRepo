@@ -8,6 +8,8 @@ CSettingsDialog::CSettingsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CSettingsDialog)
 {
+    //Q_ASSERT(parent);
+
     ui->setupUi(this);
     initComponents();
 }

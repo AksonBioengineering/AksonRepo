@@ -3,11 +3,14 @@
 
 /*!
   *
+  * v 1.2.0
+  *  - Added CV functionality (testing required)
+  *
   * v 1.1.0
   *  - Added axis autoscaling
   *  - Added fixed max axis values
   *  - Added CSV export
-  *  - Added tree wiev with points
+  *  - Added tree view with points
   *  - Added labels to each poin on the plot
   *
   * v 1.0.1:

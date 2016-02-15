@@ -4,6 +4,8 @@
 CSerialThread::CSerialThread(const QString& port, QObject *parent) :
     QThread(parent)
 {
+    //Q_ASSERT(parent);
+
     mp_serial = new QSerialPort(this);
 
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
@@ -36,7 +38,7 @@ void CSerialThread::run()
     if (!mp_serial->open(QIODevice::ReadWrite))
     {
         emit openPort(1);
-        qWarning() << "Serial port" << mp_serial->portName() << "is busy";
+        qWarning() << "Cannot open serial port" << mp_serial->portName();
         exit(1);
     }
 
@@ -128,10 +130,9 @@ void CSerialThread::on_readyRead()
 
     while(receiveBuffer.length())
     {
-        if (errorCode = digForFrames(receiveBuffer))
-        {
-            qWarning() << "Examinating bytes from tcp failed" << errorCode;
-        }
+        errorCode = digForFrames(receiveBuffer);
+        if (errorCode)
+            qWarning() << "Examinating bytes from serial port failed" << errorCode;
     }
 
     if (m_frameQueue.length() >= 1)
@@ -231,9 +232,11 @@ void CSerialThread::frameReady()
                 break;
             }
 
+            // EIS
+
             case ESerialCommand_t::e_takeMeasEis: // answer
             {
-                qDebug() << "TCP: Answer for e_takeMeasEis";
+                qDebug() << "SERIAL: Answer for e_takeMeasEis";
                 emit received_takeMeasEis((bool)frame.m_data[0]);
                 break;
             }
@@ -264,6 +267,44 @@ void CSerialThread::frameReady()
                 emit received_endMeasEis();
                 break;
             }
+
+            // CV
+
+            case ESerialCommand_t::e_takeMeasCv: // answer
+            {
+                qDebug() << "SERIAL: Answer for e_takeMeasCv";
+                emit received_takeMeasCv((bool)frame.m_data[0]);
+                break;
+            }
+
+            case ESerialCommand_t::e_giveMeasChunkCv: // command
+            {
+                quint16 sampleNr = 0;
+                union32_t current;
+                union32_t voltage;
+                quint32 i = 0;
+
+                for (size_t k = 0; k < sizeof(quint16); i++, k++)
+                    sampleNr |= (quint16)frame.m_data[i] << (k * 8);
+
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    current.id8[k] = frame.m_data[i];
+
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    voltage.id8[k] = frame.m_data[i];
+
+                emit received_giveMeasChunkCv(sampleNr, current, voltage);
+                break;
+            }
+
+            case ESerialCommand_t::e_endMeasCv: // command
+            {
+                send_endMeasCv();
+                emit received_endMeasCv();
+                break;
+            }
+
+            // UNKNOWN
 
             default:
             {
@@ -316,10 +357,40 @@ void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
     sendData(ESerialCommand_t::e_takeMeasEis, sendArr, true);
 }
 
+void CSerialThread::on_send_takeMeasCv( const quint16& potStart,
+                                        const quint16& potEnd,
+                                        const quint8&  nrOfCycles,
+                                        const quint16& potStep,
+                                        const quint16& scanDelay)
+{
+    QByteArray sendArr;
+    for (quint16 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(potStart >> (i * 8)) & 0xFF);
+
+    for (quint16 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(potEnd >> (i * 8)) & 0xFF);
+
+    sendArr.append(nrOfCycles);
+
+    for (quint16 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(potStep >> (i * 8)) & 0xFF);
+
+    for (quint16 i = 0; i < sizeof(quint16); i++)
+            sendArr.append((quint8)(scanDelay >> (i * 8)) & 0xFF);
+
+    sendData(ESerialCommand_t::e_takeMeasCv, sendArr, true);
+}
+
 void CSerialThread::send_endMeasEis()
 {
     QByteArray sendArr;
     sendData(ESerialCommand_t::e_endMeasEis, sendArr, false);
+}
+
+void CSerialThread::send_endMeasCv()
+{
+    QByteArray sendArr;
+    sendData(ESerialCommand_t::e_endMeasCv, sendArr, false);
 }
 
 

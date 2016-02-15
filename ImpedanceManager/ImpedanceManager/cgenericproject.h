@@ -53,14 +53,13 @@ private slots:
 private:
     virtual void initPlot();
     virtual void initFields();
-    virtual void clearData();
     virtual void updateTree();
 
     virtual int insertLabels();
-    virtual void clearLabels();
 
 protected:
     void autoScalePlot();
+    void clearData();
 
     double getYMax();
     double getYMin();
@@ -70,6 +69,7 @@ protected:
     void setNewRange(QCPAxis* axis, const double& upperRange,
                                 const QCPRange &newRange, const QCPRange &oldRange);
     void setLabelsVisible(bool val);
+    void clearLabels();
 
     Ui::CGenericProject *ui;
 
@@ -80,10 +80,9 @@ protected:
 
     CSerialThread* mp_serialThread;
 
-    double m_minFreq = 1;
-    double m_maxFreq = 1000000;
-    int m_upperXRange = 1000000;
-    int m_upperYRange = 1000000;
+    double m_upperXRange = 10;
+    double m_upperYRange = 10;
+    int m_maxItemWidth = 50;
     QVector<QCPItemText*> m_pointLabels;
     bool m_labelsVisible;
 
