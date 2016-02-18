@@ -29,12 +29,14 @@ void CEisProject::initPlot()
     customPlot->graph(0)->setName("EIS measure");
 
     m_upperXRange = 100000;
+    m_lowerXRange = 0;
     m_upperYRange = 100000;
+    m_lowerYRange = 0;
 
     customPlot->xAxis->setTickStep(10000);
     customPlot->yAxis->setTickStep(10000);
-    customPlot->xAxis->setRange(0, m_upperXRange);
-    customPlot->yAxis->setRange(0, m_upperYRange);
+    customPlot->xAxis->setRange(m_lowerXRange, m_upperXRange);
+    customPlot->yAxis->setRange(m_lowerYRange, m_upperYRange);
 
     /*
     customPlot->xAxis->setSubTickCount(10);
@@ -115,7 +117,7 @@ void CEisProject::takeMeasure()
     if (!freqEnd.id32)
         badParameters += m_labelFreqStop.text() + "\n";
 
-    quint16 freqStep = (quint16)m_leFreqStep.text().toInt(&ok, 10);
+    qint16 freqStep = (qint16)m_leFreqStep.text().toInt(&ok, 10);
     if (!freqStep)
         badParameters += m_labelFreqStep.text() + "\n";
 
@@ -141,9 +143,9 @@ void CEisProject::changeConnections(const bool con)
     if(con)
     {
         connect(this, SIGNAL(send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
-                                              const quint16&, const quint8&)),
+                                              const qint16&, const quint8&)),
         mp_serialThread, SLOT(on_send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
-                                              const quint16&, const quint8&)), Qt::UniqueConnection);
+                                              const qint16&, const quint8&)), Qt::UniqueConnection);
 
         connect(mp_serialThread, SIGNAL(received_takeMeasEis(const bool&)),
                 this, SLOT(on_received_takeMeasEis(const bool&)), Qt::UniqueConnection);
@@ -157,9 +159,9 @@ void CEisProject::changeConnections(const bool con)
     else
     {
         disconnect(this, SIGNAL(send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
-                                              const quint16&, const quint8&)),
+                                              const qint16&, const quint8&)),
         mp_serialThread, SLOT(on_send_takeMeasEis(const quint8&, const union32_t&, const union32_t&,
-                                              const quint16&, const quint8&)));
+                                              const qint16&, const quint8&)));
 
         disconnect(mp_serialThread, SIGNAL(received_takeMeasEis(const bool&)),
                 this, SLOT(on_received_takeMeasEis(const bool&)));

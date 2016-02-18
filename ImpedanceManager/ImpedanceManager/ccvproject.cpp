@@ -28,13 +28,15 @@ void CCvProject::initPlot()
     customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     customPlot->graph(0)->setName("CV measure");
 
-    m_upperXRange = 1.5; // voltage
+    m_upperXRange = 2; // voltage
+    m_lowerXRange = -2;
     m_upperYRange = 0.01; // current
+    m_lowerYRange = -0.01;
 
     customPlot->xAxis->setTickStep(0.15);
-    customPlot->yAxis->setTickStep(0.001);
-    customPlot->xAxis->setRange(0, m_upperXRange);
-    customPlot->yAxis->setRange(0, m_upperYRange);
+    customPlot->yAxis->setTickStep(0.0001);
+    customPlot->xAxis->setRange(m_lowerXRange, m_upperXRange);
+    customPlot->yAxis->setRange(m_lowerYRange, m_upperYRange);
 
     customPlot->replot();
 }
@@ -65,20 +67,21 @@ void CCvProject::initFields()
     m_leNrOfCycles.setMaximumWidth(m_maxItemWidth);
     ui->glControls->addWidget(&m_leNrOfCycles, 3, 1);
 
-    // Scan delay
-    m_labelScanDelay.setText("ScanDelay[ms]");
-    ui->glControls->addWidget(&m_labelScanDelay, 4, 0);
-    m_leScanDelay.setMaximumWidth(m_maxItemWidth);
-    ui->glControls->addWidget(&m_leScanDelay, 5, 0);
+    // Scan speed [V/s]
+    m_labelScanSpeed.setText("ScanSpd[mV/s]");
+    ui->glControls->addWidget(&m_labelScanSpeed, 4, 0);
+    m_leScanSpeed.setMaximumWidth(m_maxItemWidth);
+    ui->glControls->addWidget(&m_leScanSpeed, 5, 0);
 
-    QIntValidator* mv16Validator = new QIntValidator(1, 0xFFFF, this);
+    QIntValidator* mv16Validator = new QIntValidator(-1000, 1000, this);
+    QIntValidator* mv16ValidatorPositive = new QIntValidator(0, 1000, this);
     QIntValidator* mv8Validator = new QIntValidator(1, 0xFF, this);
 
     m_lePotStart.setValidator(mv16Validator);
     m_lePotEnd.setValidator(mv16Validator);
     m_leNrOfCycles.setValidator(mv8Validator);
     m_lePotStep.setValidator(mv16Validator);
-    m_leScanDelay.setValidator(mv16Validator);
+    m_leScanSpeed.setValidator(mv16ValidatorPositive);
 }
 
 void CCvProject::takeMeasure()
@@ -86,15 +89,15 @@ void CCvProject::takeMeasure()
     bool ok;
     QString badParameters;
 
-    quint16 potStart = (quint16)m_lePotStart.text().toInt(&ok, 10);
+    qint16 potStart = (qint16)m_lePotStart.text().toInt(&ok, 10);
     if (!potStart)
         badParameters += m_labelPotStart.text() + "\n";
 
-    quint16 potEnd = (quint16)m_lePotEnd.text().toInt(&ok, 10);
+    qint16 potEnd = (qint16)m_lePotEnd.text().toInt(&ok, 10);
     if (!potEnd)
         badParameters += m_labelPotEnd.text() + "\n";
 
-    quint16 potStep = (quint16)m_lePotStep.text().toInt(&ok, 10);
+    qint16 potStep = (qint16)m_lePotStep.text().toInt(&ok, 10);
     if (!potStep)
         badParameters += m_labelPotStep.text() + "\n";
 
@@ -102,9 +105,9 @@ void CCvProject::takeMeasure()
     if (!nrOfCycles)
         badParameters += m_labelNrOfCycles.text() + "\n";
 
-    quint16 scanDelay = (quint16)m_leScanDelay.text().toInt(&ok, 10);
+    qint16 scanDelay = (qint16)m_leScanSpeed.text().toInt(&ok, 10);
     if (!scanDelay)
-        badParameters += m_labelScanDelay.text() + "\n";
+        badParameters += m_labelScanSpeed.text() + "\n";
 
     if(badParameters.length())
     {
@@ -125,10 +128,10 @@ void CCvProject::changeConnections(const bool con)
 {
     if(con)
     {
-        connect(this, SIGNAL(send_takeMeasCv(const quint16&, const quint16&, const quint8&,
-                                             const quint16&, const quint16&)),
-        mp_serialThread, SLOT(on_send_takeMeasCv(const quint16&, const quint16&, const quint8&,
-                                             const quint16&, const quint16&)), Qt::UniqueConnection);
+        connect(this, SIGNAL(send_takeMeasCv(const qint16&, const qint16&, const quint8&,
+                                             const qint16&, const qint16&)),
+        mp_serialThread, SLOT(on_send_takeMeasCv(const qint16&, const qint16&, const quint8&,
+                                             const qint16&, const qint16&)), Qt::UniqueConnection);
 
         connect(mp_serialThread, SIGNAL(received_takeMeasCv(const bool&)),
                 this, SLOT(on_received_takeMeasCv(const bool&)), Qt::UniqueConnection);
@@ -143,10 +146,10 @@ void CCvProject::changeConnections(const bool con)
     }
     else
     {
-        disconnect(this, SIGNAL(send_takeMeasCv(const quint16&, const quint16&, const quint8&,
-                                             const quint16&, const quint16&)),
-        mp_serialThread, SLOT(on_send_takeMeasCv(const quint16&, const quint16&, const quint8&,
-                                             const quint16&, const quint16&)));
+        disconnect(this, SIGNAL(send_takeMeasCv(const qint16&, const qint16&, const quint8&,
+                                             const qint16&, const qint16&)),
+        mp_serialThread, SLOT(on_send_takeMeasCv(const qint16&, const qint16&, const quint8&,
+                                             const qint16&, const qint16&)));
 
         disconnect(mp_serialThread, SIGNAL(received_takeMeasCv(const bool&)),
                 this, SLOT(on_received_takeMeasCv(const bool&)));
@@ -179,14 +182,17 @@ void CCvProject::on_received_giveMeasChunkCv(const quint16& sample,
                                              const union32_t& current,
                                              const union32_t& voltage)
 {
-    m_x.append(current.idFl);
-    m_y.append(voltage.idFl);
+    float lcur = current.idFl / 10000000;
+    float lvol = voltage.idFl / 1000;
 
-    addCvPoint(current.idFl, voltage.idFl);
+    m_x.append(lvol);
+    m_y.append(lcur);
+
+    addCvPoint(lcur, lvol);
     customPlot->graph(0)->setData(m_x, m_y);
     autoScalePlot();
 
-    qDebug("CV point received. Samp: %u Vol: %f Cur %f", sample, voltage.idFl, current.idFl);
+    qDebug("CV point received. Samp: %u Vol: %f Cur %f", sample, lvol, lcur);
 }
 
 void CCvProject::on_received_endMeasCv()
@@ -244,6 +250,8 @@ void CCvProject::addCvPoint(const float& current, const float& voltage)
 
     item->setText(0, QString::number(voltage));
     item->setText(1, QString::number(current));
+
+    ui->twPoints->scrollToBottom();
 }
 
 int CCvProject::saveToCsv(QIODevice* device)

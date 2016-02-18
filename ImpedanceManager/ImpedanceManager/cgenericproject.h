@@ -66,7 +66,7 @@ protected:
     double getXMax();
     double getXMin();
 
-    void setNewRange(QCPAxis* axis, const double& upperRange,
+    void setNewRange(QCPAxis* axis, const double& upperRange, const double& lowerRange,
                                 const QCPRange &newRange, const QCPRange &oldRange);
     void setLabelsVisible(bool val);
     void clearLabels();
@@ -81,7 +81,10 @@ protected:
     CSerialThread* mp_serialThread;
 
     double m_upperXRange = 10;
+    double m_lowerXRange = 0;
     double m_upperYRange = 10;
+    double m_lowerYRange = 0;
+
     int m_maxItemWidth = 50;
     QVector<QCPItemText*> m_pointLabels;
     bool m_labelsVisible;

@@ -74,12 +74,12 @@ void CGenericProject::mouseWheel(QWheelEvent* event)
 
 void CGenericProject::rangeYChanged(const QCPRange &newRange, const QCPRange &oldRange)
 {
-   setNewRange(customPlot->yAxis, m_upperYRange, newRange, oldRange);
+   setNewRange(customPlot->yAxis, m_upperYRange, m_lowerYRange, newRange, oldRange);
 }
 
 void CGenericProject::rangeXChanged(const QCPRange &newRange, const QCPRange &oldRange)
 {
-   setNewRange(customPlot->xAxis, m_upperXRange, newRange, oldRange);
+   setNewRange(customPlot->xAxis, m_upperXRange, m_lowerXRange, newRange, oldRange);
 }
 
 void CGenericProject::takeMeasure()
@@ -148,10 +148,10 @@ void CGenericProject::autoScalePlot()
     if ((topY + 1) <= m_upperYRange)
         topY++;
 
-    if ((botX - 1) >= 0)
+    if ((botX - 1) >= m_lowerXRange)
         botX--;
 
-    if ((botY - 1) >= 0)
+    if ((botY - 1) >= m_lowerYRange)
         botY--;
 
     customPlot->xAxis->setRange(0, 1);
@@ -213,16 +213,19 @@ double CGenericProject::getXMin()
     return botVal;
 }
 
-void CGenericProject::setNewRange(QCPAxis* axis, const double& upperRange,
-                             const QCPRange &newRange, const QCPRange &oldRange)
+void CGenericProject::setNewRange(QCPAxis* axis,
+                                  const double& upperRange,
+                                  const double& lowerRange,
+                                  const QCPRange &newRange,
+                                  const QCPRange &oldRange)
 {
     Q_ASSERT(axis);
 
-    if (newRange.lower < 0.000001)
+    if (newRange.lower < lowerRange)
     {
-        if (newRange.upper <= 0.000001)
+        if (newRange.upper <= lowerRange)
         {
-            axis->setRangeUpper(0.000001);
+            axis->setRangeUpper(lowerRange);
         }
 
         if (axis->scaleType() == QCPAxis::stLinear)
@@ -230,9 +233,9 @@ void CGenericProject::setNewRange(QCPAxis* axis, const double& upperRange,
         else
             axis->setRangeLower(1);
     }
-    else if (newRange.upper <= 0.000001)
+    else if (newRange.upper <= lowerRange)
     {
-        axis->setRangeUpper(0.000001);
+        axis->setRangeUpper(lowerRange);
     }
 
     if (newRange.upper >= upperRange)

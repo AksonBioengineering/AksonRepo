@@ -35,7 +35,7 @@ public:
         ESerialCommand_t m_command;
         quint32 m_length;
         QByteArray m_data;
-        quint16 m_crc;
+        qint16 m_crc;
     } ESerialFrame_t;
 
     explicit CSerialThread(const QString& port, QObject *parent = 0);
@@ -50,11 +50,13 @@ signals:
     // frames (IM- impredance manager, ES- embedded system):            // Sender:
     void received_getFirmwareID(const MeasureUtility::union32_t& id);   // IM
 
+    // EIS
     void received_takeMeasEis(const bool& ack);                         // IM
     void received_giveMeasChunkEis(const union32_t&, const union32_t&,
                                    const union32_t&);                   // ES
     void received_endMeasEis();                                         // ES
 
+    // CV
     void received_takeMeasCv(const bool& ack);                          // IM
     void received_giveMeasChunkCv(const quint16&, const union32_t&,
                              const union32_t&);                         // ES
@@ -70,18 +72,18 @@ public slots:
     void on_send_takeMeasEis(const quint8&,
                              const union32_t&,
                              const union32_t&,
-                             const quint16&,
+                             const qint16&,
                              const quint8&);
 
-    void on_send_takeMeasCv( const quint16&,
-                             const quint16&,
+    void on_send_takeMeasCv( const qint16&,
+                             const qint16&,
                              const quint8&,
-                             const quint16&,
-                             const quint16&);
+                             const qint16&,
+                             const qint16&);
 
 private:
-    quint16 getCrc(const QByteArray& bArray);
-    quint16 getCrc(const ESerialFrame_t& frame);
+    qint16 getCrc(const QByteArray& bArray);
+    qint16 getCrc(const ESerialFrame_t& frame);
     int digForFrames(QByteArray& buffer);
     void sendData(const ESerialCommand_t& command,
                   const QByteArray& data,

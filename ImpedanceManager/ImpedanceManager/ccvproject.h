@@ -17,8 +17,8 @@ public:
     virtual int saveToCsv(QIODevice* device);
 
 signals:
-    void send_takeMeasCv(const quint16&, const quint16&, const quint8&,
-                          const quint16&, const quint16&);
+    void send_takeMeasCv(const qint16&, const qint16&, const quint8&,
+                          const qint16&, const qint16&);
 
 private slots:
     void on_received_takeMeasCv(const bool&);
@@ -46,8 +46,8 @@ private:
     QLabel m_labelPotStep;
     QLineEdit m_lePotStep;
 
-    QLabel m_labelScanDelay;
-    QLineEdit m_leScanDelay;
+    QLabel m_labelScanSpeed;
+    QLineEdit m_leScanSpeed;
 };
 
 #endif // CCVPROJECT_H

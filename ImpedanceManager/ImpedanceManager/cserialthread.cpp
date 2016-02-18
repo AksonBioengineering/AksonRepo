@@ -70,7 +70,7 @@ void CSerialThread::run()
 void CSerialThread::sendData(const ESerialCommand_t& command,
                              const QByteArray& data, const bool wantAck)
 {
-    quint16 crc = 0;
+    qint16 crc = 0;
     quint32 len = 0;
 
     m_sendBuffer.clear();
@@ -98,26 +98,26 @@ void CSerialThread::sendData(const ESerialCommand_t& command,
     }
 }
 
-quint16 CSerialThread::getCrc(const QByteArray& bArray)
+qint16 CSerialThread::getCrc(const QByteArray& bArray)
 {
-    quint16 crc = 0;
+    qint16 crc = 0;
 
     for (auto item : bArray)
-        crc += (quint16)((quint8)item);
+        crc += (qint16)((quint8)item);
 
     return ~crc;
 }
 
-quint16 CSerialThread::getCrc(const ESerialFrame_t& frame)
+qint16 CSerialThread::getCrc(const ESerialFrame_t& frame)
 {
     quint32 crc = 0;
 
     crc += frame.m_syncByte;
-    crc += (quint16)((quint8)frame.m_command);
-    crc += (quint16)frame.m_length;
+    crc += (qint16)((quint8)frame.m_command);
+    crc += (qint16)frame.m_length;
 
     for (auto item : frame.m_data)
-        crc += (quint16)((quint8)item);
+        crc += (qint16)((quint8)item);
 
     return ~crc;
 }
@@ -183,7 +183,7 @@ int CSerialThread::digForFrames(QByteArray& buffer)
             {
                 mp_frameStruct->m_crc |= (data << 8);
 
-                quint16 calculatedCrc = getCrc(*mp_frameStruct);
+                qint16 calculatedCrc = getCrc(*mp_frameStruct);
                 if (mp_frameStruct->m_crc == calculatedCrc)
                     m_frameQueue.enqueue(mp_frameStruct);
                 else
@@ -279,13 +279,13 @@ void CSerialThread::frameReady()
 
             case ESerialCommand_t::e_giveMeasChunkCv: // command
             {
-                quint16 sampleNr = 0;
+                quint16   sampleNr = 0;
                 union32_t current;
                 union32_t voltage;
                 quint32 i = 0;
 
-                for (size_t k = 0; k < sizeof(quint16); i++, k++)
-                    sampleNr |= (quint16)frame.m_data[i] << (k * 8);
+                for (size_t k = 0; k < sizeof(qint16); i++, k++)
+                    sampleNr |= ((quint16)((quint8)frame.m_data[i])) << (k * 8);
 
                 for (size_t k = 0; k < sizeof(union32_t); i++, k++)
                     current.id8[k] = frame.m_data[i];
@@ -338,7 +338,7 @@ void CSerialThread::on_send_getFirmwareID()
 void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
                                         const union32_t& freqStart,
                                         const union32_t& freqEnd,
-                                        const quint16& nrOfSteps,
+                                        const qint16& nrOfSteps,
                                         const quint8& stepType)
 {
     QByteArray sendArr;
@@ -350,32 +350,32 @@ void CSerialThread::on_send_takeMeasEis(const quint8& amplitude,
     for (quint32 i = 0; i < sizeof(quint32); i++)
         sendArr.append(freqEnd.id8[i]);
 
-    for (quint16 i = 0; i < sizeof(quint16); i++)
+    for (quint32 i = 0; i < sizeof(qint16); i++)
         sendArr.append((quint8)(nrOfSteps >> (i * 8)) & 0xFF);
 
     sendArr.append((quint8)stepType);
     sendData(ESerialCommand_t::e_takeMeasEis, sendArr, true);
 }
 
-void CSerialThread::on_send_takeMeasCv( const quint16& potStart,
-                                        const quint16& potEnd,
+void CSerialThread::on_send_takeMeasCv( const qint16& potStart,
+                                        const qint16& potEnd,
                                         const quint8&  nrOfCycles,
-                                        const quint16& potStep,
-                                        const quint16& scanDelay)
+                                        const qint16& potStep,
+                                        const qint16& scanDelay)
 {
     QByteArray sendArr;
-    for (quint16 i = 0; i < sizeof(quint16); i++)
+    for (quint32 i = 0; i < sizeof(qint16); i++)
         sendArr.append((quint8)(potStart >> (i * 8)) & 0xFF);
 
-    for (quint16 i = 0; i < sizeof(quint16); i++)
+    for (quint32 i = 0; i < sizeof(qint16); i++)
         sendArr.append((quint8)(potEnd >> (i * 8)) & 0xFF);
 
     sendArr.append(nrOfCycles);
 
-    for (quint16 i = 0; i < sizeof(quint16); i++)
+    for (quint32 i = 0; i < sizeof(qint16); i++)
         sendArr.append((quint8)(potStep >> (i * 8)) & 0xFF);
 
-    for (quint16 i = 0; i < sizeof(quint16); i++)
+    for (quint32 i = 0; i < sizeof(qint16); i++)
             sendArr.append((quint8)(scanDelay >> (i * 8)) & 0xFF);
 
     sendData(ESerialCommand_t::e_takeMeasCv, sendArr, true);
