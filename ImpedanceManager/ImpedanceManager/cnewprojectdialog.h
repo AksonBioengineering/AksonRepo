@@ -28,6 +28,12 @@ private slots:
 
     void on_rbCv_clicked(bool checked);
 
+    void on_rbSwv_clicked(bool checked);
+
+    void on_rbDpv_clicked(bool checked);
+
+    void on_rbBioFet_clicked(bool checked);
+
 private:
     Ui::CNewProjectDialog *ui;
 

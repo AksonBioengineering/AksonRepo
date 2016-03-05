@@ -15,6 +15,7 @@
 #include "cnewprojectdialog.h"
 #include "csettingsmanager.h"
 #include "cserialthread.h"
+#include "caboutdialog.h"
 
 #define APPNAME  "Impedance Manager "
 
@@ -62,6 +63,8 @@ private slots:
     void on_action_Export_CSV_triggered();
 
     void on_action_Points_labels_triggered();
+
+    void on_action_About_triggered();
 
 private:
     void saveCsvFile(const QString& fileName);

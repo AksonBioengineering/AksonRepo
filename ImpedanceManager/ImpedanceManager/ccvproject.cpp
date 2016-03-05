@@ -33,8 +33,11 @@ void CCvProject::initPlot()
     m_upperYRange = 0.01; // current
     m_lowerYRange = -0.01;
 
-    customPlot->xAxis->setTickStep(0.15);
-    customPlot->yAxis->setTickStep(0.0001);
+    m_tickStepX = 0.15;
+    m_tickStepY = 0.0001;
+
+    customPlot->xAxis->setTickStep(m_tickStepX);
+    customPlot->yAxis->setTickStep(m_tickStepY);
     customPlot->xAxis->setRange(m_lowerXRange, m_upperXRange);
     customPlot->yAxis->setRange(m_lowerYRange, m_upperYRange);
 
@@ -189,7 +192,8 @@ void CCvProject::on_received_giveMeasChunkCv(const quint16& sample,
     m_y.append(lcur);
 
     addCvPoint(lcur, lvol);
-    customPlot->graph(0)->setData(m_x, m_y);
+    //customPlot->graph(0)->setData(m_x, m_y);
+    customPlot->graph(0)->addData(lvol, lcur);
     autoScalePlot();
 
     qDebug("CV point received. Samp: %u Vol: %f Cur %f", sample, lvol, lcur);
@@ -231,7 +235,9 @@ int CCvProject::insertLabels()
 
         textLabel->setFont(font);
         textLabel->setTextAlignment(Qt::AlignLeft);
-        textLabel->setText(QString("U= %1\nI=%2").arg(m_x[i]).arg(m_y[i]));
+        textLabel->setText(QString("U=%1V\nI=%2A")
+                           .arg(QString::number(m_x[i], 'e', 2))
+                           .arg(QString::number(m_y[i], 'e', 2)));
 
         textLabel->setPen(QPen(Qt::black));
         textLabel->setBrush(QBrush(Qt::yellow));
@@ -248,8 +254,8 @@ void CCvProject::addCvPoint(const float& current, const float& voltage)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem(ui->twPoints);
 
-    item->setText(0, QString::number(voltage));
-    item->setText(1, QString::number(current));
+    item->setText(0, QString::number(voltage, 'e', 2));
+    item->setText(1, QString::number(current, 'e', 2));
 
     ui->twPoints->scrollToBottom();
 }

@@ -15,8 +15,6 @@ CNewProjectDialog::CNewProjectDialog(EMeasures_t* type , QWidget *parent) :
 
     if (ui->rbEis->isChecked())
         ui->lStatus->setText("Electrochemical Impedance Spectroscopy");
-    else if (ui->rbCv->isChecked())
-        ui->lStatus->setText("Cyclic Voltametry");
 }
 
 CNewProjectDialog::~CNewProjectDialog()
@@ -42,4 +40,22 @@ void CNewProjectDialog::on_rbCv_clicked(bool checked)
 {
     if (checked)
         ui->lStatus->setText("Cyclic Voltametry");
+}
+
+void CNewProjectDialog::on_rbSwv_clicked(bool checked)
+{
+    if (checked)
+        ui->lStatus->setText("Square Wave Voltametry");
+}
+
+void CNewProjectDialog::on_rbDpv_clicked(bool checked)
+{
+    if (checked)
+        ui->lStatus->setText("Differential Pulse Voltametry");
+}
+
+void CNewProjectDialog::on_rbBioFet_clicked(bool checked)
+{
+    if (checked)
+        ui->lStatus->setText("BIOFet transistor");
 }

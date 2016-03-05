@@ -56,6 +56,27 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QRadioButton" name="rbSwv">
+       <property name="text">
+        <string>SWV</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbDpv">
+       <property name="text">
+        <string>DPV</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbBioFet">
+       <property name="text">
+        <string>BIOFet</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="2" column="0">

@@ -29,8 +29,15 @@ void CGenericProject::initPlot()
 
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes );
     customPlot->setFocusPolicy(Qt::ClickFocus);
+    customPlot->setNoAntialiasingOnDrag(true);
     customPlot->xAxis->setAutoTickStep(false);
     customPlot->yAxis->setAutoTickStep(false);
+
+    customPlot->xAxis->setTickLabelRotation(45);
+    customPlot->yAxis->setTickLabelRotation(45);
+
+    customPlot->xAxis->setNumberPrecision(2);
+    customPlot->yAxis->setNumberPrecision(2);
 
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
     connect(customPlot, SIGNAL(mousePress(QMouseEvent*)),
@@ -74,12 +81,14 @@ void CGenericProject::mouseWheel(QWheelEvent* event)
 
 void CGenericProject::rangeYChanged(const QCPRange &newRange, const QCPRange &oldRange)
 {
-   setNewRange(customPlot->yAxis, m_upperYRange, m_lowerYRange, newRange, oldRange);
+   setNewRange(customPlot->yAxis, m_upperYRange, m_lowerYRange,
+               newRange, oldRange, m_tickStepY);
 }
 
 void CGenericProject::rangeXChanged(const QCPRange &newRange, const QCPRange &oldRange)
 {
-   setNewRange(customPlot->xAxis, m_upperXRange, m_lowerXRange, newRange, oldRange);
+   setNewRange(customPlot->xAxis, m_upperXRange, m_lowerXRange,
+               newRange, oldRange, m_tickStepX);
 }
 
 void CGenericProject::takeMeasure()
@@ -104,6 +113,9 @@ void CGenericProject::clearData()
     m_z.clear();
     ui->twPoints->clear();
     clearLabels();
+
+    m_tickStepXMin = 999999999;
+    m_tickStepYMin = 999999999;
 
     customPlot->graph(0)->clearData();
     customPlot->replot();
@@ -142,22 +154,26 @@ void CGenericProject::autoScalePlot()
     double topY = getYMax();
     double botY = getYMin();
 
-    if ((topX + 1) <= m_upperXRange)
-        topX++;
+    if (m_tickStepX < m_tickStepXMin)
+        m_tickStepXMin = m_tickStepX;
+    if (m_tickStepY < m_tickStepYMin)
+        m_tickStepYMin = m_tickStepY;
 
-    if ((topY + 1) <= m_upperYRange)
-        topY++;
 
-    if ((botX - 1) >= m_lowerXRange)
-        botX--;
+    if ((topX + m_tickStepXMin) <= m_upperXRange)
+        topX += m_tickStepXMin;
+    if ((topY + m_tickStepYMin) <= m_upperYRange)
+        topY += m_tickStepYMin;
 
-    if ((botY - 1) >= m_lowerYRange)
-        botY--;
+    if ((botX - m_tickStepXMin) >= m_lowerXRange)
+        botX -= m_tickStepXMin;
+    if ((botY - m_tickStepYMin) >= m_lowerYRange)
+        botY -= m_tickStepYMin;
 
     customPlot->xAxis->setRange(0, 1);
     customPlot->yAxis->setRange(0, 1);
-    customPlot->xAxis->setRange(qRound((botX + topX) / 2), topX - botX, Qt::AlignCenter);
-    customPlot->yAxis->setRange(qRound((botY + topY) / 2), topY - botY, Qt::AlignCenter);
+    customPlot->xAxis->setRange((botX + topX) / 2, topX - botX, Qt::AlignCenter);
+    customPlot->yAxis->setRange((botY + topY) / 2, topY - botY, Qt::AlignCenter);
     customPlot->replot();
 }
 
@@ -217,7 +233,8 @@ void CGenericProject::setNewRange(QCPAxis* axis,
                                   const double& upperRange,
                                   const double& lowerRange,
                                   const QCPRange &newRange,
-                                  const QCPRange &oldRange)
+                                  const QCPRange &oldRange,
+                                  double& newTickStep)
 {
     Q_ASSERT(axis);
 
@@ -244,10 +261,10 @@ void CGenericProject::setNewRange(QCPAxis* axis,
     }
 
     double oldStep = (oldRange.upper - oldRange.lower) / 10;
-    double step = (newRange.upper - newRange.lower) / 10;
+    newTickStep = (newRange.upper - newRange.lower) / 10;
 
-    if ((step != oldStep) && (step > 0))
-        axis->setTickStep(step);
+    if ((newTickStep != oldStep) && (newTickStep > 0))
+        axis->setTickStep(newTickStep);
 }
 
 void CGenericProject::zoomOut()
@@ -324,6 +341,13 @@ void CGenericProject::toggleLabels()
     setLabelsVisible(m_labelsVisible);
 }
 
+void CGenericProject::on_twPoints_itemSelectionChanged()
+{
+    int index = ui->twPoints->currentIndex().row();
 
+    m_pointLabels[m_lastSelectedItemIndex]->setVisible(false);
+    m_pointLabels[index]->setVisible(true);
 
-
+    m_lastSelectedItemIndex = index;
+    customPlot->replot();
+}

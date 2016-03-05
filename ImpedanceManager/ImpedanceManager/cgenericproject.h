@@ -50,6 +50,8 @@ private slots:
     void rangeYChanged(const QCPRange &newRange, const QCPRange &oldRange);
     void rangeXChanged(const QCPRange &newRange, const QCPRange &oldRange);
 
+    void on_twPoints_itemSelectionChanged();
+
 private:
     virtual void initPlot();
     virtual void initFields();
@@ -67,7 +69,8 @@ protected:
     double getXMin();
 
     void setNewRange(QCPAxis* axis, const double& upperRange, const double& lowerRange,
-                                const QCPRange &newRange, const QCPRange &oldRange);
+                                const QCPRange &newRange, const QCPRange &oldRange,
+                                double& newTickStep);
     void setLabelsVisible(bool val);
     void clearLabels();
 
@@ -84,10 +87,15 @@ protected:
     double m_lowerXRange = 0;
     double m_upperYRange = 10;
     double m_lowerYRange = 0;
+    double m_tickStepX = 1;
+    double m_tickStepY = 1;
+    double m_tickStepXMin = 999999999; // high numbers
+    double m_tickStepYMin = 999999999;
 
     int m_maxItemWidth = 50;
     QVector<QCPItemText*> m_pointLabels;
     bool m_labelsVisible;
+    int m_lastSelectedItemIndex = 0;
 
     constexpr static double zoomInFactor = 1 / 1.5;
     constexpr static double zoomOutFactor = 1.5;

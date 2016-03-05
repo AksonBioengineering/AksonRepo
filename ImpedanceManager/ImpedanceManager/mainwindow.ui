@@ -87,9 +87,16 @@
     <addaction name="separator"/>
     <addaction name="action_Points_labels"/>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menu_Connection"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -120,7 +127,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Open">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Open_24x24.png</normaloff>:/more24/Open_24x24.png</iconset>
    </property>
    <property name="text">
@@ -132,7 +139,7 @@
   </action>
   <action name="action_Save">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Save_24x24.png</normaloff>:/more24/Save_24x24.png</iconset>
    </property>
    <property name="text">
@@ -144,7 +151,7 @@
   </action>
   <action name="action_Save_as">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Copy_24x24.png</normaloff>:/more24/Copy_24x24.png</iconset>
    </property>
    <property name="text">
@@ -156,7 +163,7 @@
   </action>
   <action name="action_New">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/New_24x24.png</normaloff>:/more24/New_24x24.png</iconset>
    </property>
    <property name="text">
@@ -168,7 +175,7 @@
   </action>
   <action name="action_Settings">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Settings_24x24.png</normaloff>:/more24/Settings_24x24.png</iconset>
    </property>
    <property name="text">
@@ -180,7 +187,7 @@
   </action>
   <action name="action_Connect">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/24/lightning.png</normaloff>:/24/lightning.png</iconset>
    </property>
    <property name="text">
@@ -192,7 +199,7 @@
   </action>
   <action name="action_Start_measure">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Play_24x24.png</normaloff>:/more24/Play_24x24.png</iconset>
    </property>
    <property name="text">
@@ -207,7 +214,7 @@
   </action>
   <action name="action_Pause_measure">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Pause_24x24.png</normaloff>:/more24/Pause_24x24.png</iconset>
    </property>
    <property name="text">
@@ -222,7 +229,7 @@
   </action>
   <action name="action_Cancel_measure">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Stop_24x24.png</normaloff>:/more24/Stop_24x24.png</iconset>
    </property>
    <property name="text">
@@ -234,7 +241,7 @@
   </action>
   <action name="action_Zoom_out">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Zoom Out_24x24.png</normaloff>:/more24/Zoom Out_24x24.png</iconset>
    </property>
    <property name="text">
@@ -249,7 +256,7 @@
   </action>
   <action name="action_Zoom_in">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Zoom In_24x24.png</normaloff>:/more24/Zoom In_24x24.png</iconset>
    </property>
    <property name="text">
@@ -264,7 +271,7 @@
   </action>
   <action name="action_Zoom_to_screen">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/more24/Zoom To_Screen_24x24.png</normaloff>:/more24/Zoom To_Screen_24x24.png</iconset>
    </property>
    <property name="text">
@@ -279,7 +286,7 @@
   </action>
   <action name="action_Export_CSV">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/24/file-excel.png</normaloff>:/24/file-excel.png</iconset>
    </property>
    <property name="text">
@@ -291,7 +298,7 @@
   </action>
   <action name="action_Points_labels">
    <property name="icon">
-    <iconset resource="Resources.qrc">
+    <iconset>
      <normaloff>:/24/tag.png</normaloff>:/24/tag.png</iconset>
    </property>
    <property name="text">
@@ -304,10 +311,20 @@
     <string>Ctrl+L</string>
    </property>
   </action>
+  <action name="action_About">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/24/sign-info.png</normaloff>:/24/sign-info.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+   <property name="toolTip">
+    <string>About application</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="Resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

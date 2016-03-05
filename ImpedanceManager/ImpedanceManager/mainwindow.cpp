@@ -53,7 +53,7 @@ void MainWindow::initComponents()
     qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
-    m_appVersion.ver8[1] = 2;         // new functionalities
+    m_appVersion.ver8[1] = 3;         // new functionalities
     m_appVersion.ver8[0] = 0;         // changes to existing functionalities
     setWindowTitle(APPNAME + getAppVersion());
 
@@ -163,12 +163,17 @@ void MainWindow::on_action_Settings_triggered()
 {
     CSettingsDialog settingsDial;
     settingsDial.exec();
+
+    QString port = CSettingsManager::instance()->paramValue(XML_FIELD_PORT);
+    mp_serialThread->updateSerialPort(port);
+    ui->action_Connect->setToolTip(QString("Connect to %1").arg(port));
 }
 
 void MainWindow::on_action_New_triggered()
 {
     EMeasures_t* newMeasure = new EMeasures_t;
     CNewProjectDialog newDial(newMeasure, this);
+    CGenericProject* measIntstance = NULL;
 
     if (newDial.exec())
     {
@@ -178,25 +183,15 @@ void MainWindow::on_action_New_triggered()
         {
             case EMeasures_t::eEIS:
             {
-                CGenericProject* measIntstance = new CEisProject(mp_serialThread);
+                measIntstance = new CEisProject(mp_serialThread);
                 ui->tbMain->addTab(measIntstance, "Untitled* (EIS)");
-
-                connect(measIntstance, SIGNAL(measureStarted()),
-                        this, SLOT(at_measureStarted()));
-                connect(measIntstance, SIGNAL(measureFinished()),
-                        this, SLOT(at_measureFinished()));
                 break;
             }
 
             case EMeasures_t::eCV:
             {
-                CGenericProject* measIntstance = new CCvProject(mp_serialThread);
+                measIntstance = new CCvProject(mp_serialThread);
                 ui->tbMain->addTab(measIntstance, "Untitled* (CV)");
-
-                connect(measIntstance, SIGNAL(measureStarted()),
-                        this, SLOT(at_measureStarted()));
-                connect(measIntstance, SIGNAL(measureFinished()),
-                        this, SLOT(at_measureFinished()));
                 break;
             }
 
@@ -206,6 +201,13 @@ void MainWindow::on_action_New_triggered()
             }
         }
     }
+
+    connect(measIntstance, SIGNAL(measureStarted()),
+            this, SLOT(at_measureStarted()));
+    connect(measIntstance, SIGNAL(measureFinished()),
+            this, SLOT(at_measureFinished()));
+
+    ui->tbMain->setCurrentIndex(ui->tbMain->indexOf(measIntstance));
 
     delete newMeasure;
 }
@@ -430,4 +432,23 @@ void MainWindow::on_action_Points_labels_triggered()
     }
 
     currentMeasObject(ui->tbMain->currentIndex())->toggleLabels();
+}
+
+void MainWindow::on_action_About_triggered()
+{
+    QString filePatch = QApplication::applicationDirPath() + "/changelog.txt";
+    QFile f(filePatch);
+    if (!f.open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox msgBox;
+        msgBox.setText("File open error!");
+        msgBox.setInformativeText("changelog.txt not found");
+        msgBox.exec();
+
+        return;
+    }
+
+    QTextStream in(&f);
+    CAboutDialog aboutDial(APPNAME + getAppVersion(), in.readAll());
+    aboutDial.exec();
 }

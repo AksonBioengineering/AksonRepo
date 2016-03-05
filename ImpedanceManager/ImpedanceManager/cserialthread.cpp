@@ -393,6 +393,11 @@ void CSerialThread::send_endMeasCv()
     sendData(ESerialCommand_t::e_endMeasCv, sendArr, false);
 }
 
+void CSerialThread::updateSerialPort(const QString& port)
+{
+    mp_serial->setPortName(port);
+}
+
 
 
 

@@ -42,6 +42,7 @@ public:
     ~CSerialThread();
 
     void run(); // inherited
+    void updateSerialPort(const QString& port);
 
 signals:
     void openPort(const int& val);
@@ -102,7 +103,7 @@ private:
     QTimer* mp_RxTimeoutTimer;
 
     static const quint8 m_syncByte = '?';
-    static const int m_rxTimeoutInterval_ms = 5000;
+    static const int m_rxTimeoutInterval_ms = 1000;
 };
 
 #endif // CSERIALTHREAD_H
