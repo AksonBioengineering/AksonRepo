@@ -77,6 +77,7 @@ protected:
     Ui::CGenericProject *ui;
 
     QCustomPlot* customPlot;
+    QCPCurve* customCurve;
     QVector<double> m_x;
     QVector<double> m_y;
     QVector<double> m_z;

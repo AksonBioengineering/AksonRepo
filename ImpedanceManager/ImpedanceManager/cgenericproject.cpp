@@ -26,6 +26,7 @@ CGenericProject::~CGenericProject()
 void CGenericProject::initPlot()
 {
     customPlot = ui->workPlot;
+    customCurve = 0;
 
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes );
     customPlot->setFocusPolicy(Qt::ClickFocus);
@@ -117,7 +118,11 @@ void CGenericProject::clearData()
     m_tickStepXMin = 999999999;
     m_tickStepYMin = 999999999;
 
-    customPlot->graph(0)->clearData();
+    if (customCurve)
+        customCurve->clearData();
+    else
+        customPlot->graph(0)->clearData();
+
     customPlot->replot();
 }
 

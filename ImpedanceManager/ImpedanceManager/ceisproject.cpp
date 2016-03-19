@@ -203,7 +203,8 @@ void CEisProject::on_received_giveMeasChunkEis(const union32_t& realImp,
     m_z.append(freq.idFl);
 
     addEisPoint(realImp.idFl, ImagImp.idFl, freq.idFl);
-    customPlot->graph(0)->setData(m_x, m_y);
+    //customPlot->graph(0)->setData(m_x, m_y);
+    customPlot->graph(0)->addData(realImp.idFl, ImagImp.idFl * -1);
     autoScalePlot();
 
     qDebug("EIS point received. Real: %f Imag %f Freq %f", realImp.idFl, ImagImp.idFl, freq.idFl);

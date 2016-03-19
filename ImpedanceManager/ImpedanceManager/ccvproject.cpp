@@ -10,6 +10,27 @@ CCvProject::CCvProject(CSerialThread* serialThread, QWidget* parent) : CGenericP
 
     mp_serialThread = serialThread;
     updateTree();
+
+    // testing
+    /*quint16 t;
+    union32_t x;
+    union32_t y;
+    t = 0;
+    x.idFl = 0.5;
+    y.idFl = 0.001;
+    on_received_giveMeasChunkCv(t, x, y);
+
+    t = 1;
+    x.idFl = 1;
+    y.idFl = 0.005;
+    on_received_giveMeasChunkCv(t, x, y);
+
+    t = 2;
+    x.idFl = 0.7;
+    y.idFl = 0.003;
+    on_received_giveMeasChunkCv(t, x, y);
+
+    insertLabels();*/
 }
 
 CCvProject::~CCvProject()
@@ -23,10 +44,15 @@ void CCvProject::initPlot()
     customPlot->xAxis->setLabel("U [V]");
     customPlot->yAxis->setLabel("I [A]");
 
-    // create graph and assign data to it:
-    customPlot->addGraph();
+    // create Curve and assign data to it:
+    customCurve = new QCPCurve(customPlot->xAxis, customPlot->yAxis);
+    customPlot->addPlottable(customCurve);
+    customCurve->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    customCurve->setName("CV measure");
+
+    /*customPlot->addGraph();
     customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-    customPlot->graph(0)->setName("CV measure");
+    customPlot->graph(0)->setName("CV measure");*/
 
     m_upperXRange = 2; // voltage
     m_lowerXRange = -2;
@@ -192,8 +218,8 @@ void CCvProject::on_received_giveMeasChunkCv(const quint16& sample,
     m_y.append(lcur);
 
     addCvPoint(lcur, lvol);
-    //customPlot->graph(0)->setData(m_x, m_y);
-    customPlot->graph(0)->addData(lvol, lcur);
+    //customPlot->graph(0)->addData(lvol, lcur);
+    customCurve->addData(sample, lvol, lcur);
     autoScalePlot();
 
     qDebug("CV point received. Samp: %u Vol: %f Cur %f", sample, lvol, lcur);
