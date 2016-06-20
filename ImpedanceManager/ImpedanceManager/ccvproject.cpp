@@ -1,6 +1,7 @@
 #include "ccvproject.h"
 
-CCvProject::CCvProject(CSerialThread* serialThread, QWidget* parent) : CGenericProject(serialThread, parent)
+CCvProject::CCvProject(CSerialThread* serialThread, QWidget* parent) :
+    CGenericProject(serialThread, parent)
 {
     Q_ASSERT(serialThread);
     //Q_ASSERT(parent);

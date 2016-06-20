@@ -11,6 +11,8 @@
 
 #include "ceisproject.h"
 #include "ccvproject.h"
+#include "ccaproject.h"
+
 #include "csettingsdialog.h"
 #include "cnewprojectdialog.h"
 #include "csettingsmanager.h"

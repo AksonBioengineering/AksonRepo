@@ -27,6 +27,11 @@ public:
         , e_takeMeasCv              = 0x05
         , e_giveMeasChunkCv         = 0x06
         , e_endMeasCv               = 0x07
+        , e_takeMeasCa              = 0x08
+        , e_giveMeasChunkCa         = 0x09
+        , e_endMeasCa               = 0x0A
+        ,
+
     };
 
     typedef struct
@@ -63,6 +68,12 @@ signals:
                              const union32_t&);                         // ES
     void received_endMeasCv();                                          // ES
 
+    // CA
+    void received_takeMeasCa(const bool& ack);                          // IM
+    void received_giveMeasChunkCa(const union32_t&, const union32_t&);  // ES
+    void received_endMeasCa();                                          // ES
+
+
 public slots:
     void on_readyRead();
     void on_closePort();
@@ -82,6 +93,10 @@ public slots:
                              const qint16&,
                              const qint16&);
 
+    void on_send_takeMeasCa( const qint16&,
+                             const quint16&,
+                             const union32_t&);
+
 private:
     qint16 getCrc(const QByteArray& bArray);
     qint16 getCrc(const ESerialFrame_t& frame);
@@ -94,6 +109,7 @@ private:
     // frames
     void send_endMeasEis();
     void send_endMeasCv();
+    void send_endMeasCa();
 
     QSerialPort* mp_serial;
     QByteArray m_sendBuffer;

@@ -4,6 +4,10 @@
 /*
 
 CHANGELOG:
+
+v 1.4.0
+ - Added CA functionality
+
 v 1.3.1
  - Graph replaced with Curve in CV mode. This way it is possible to draw hysteresis objects.
 

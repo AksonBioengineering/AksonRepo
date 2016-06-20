@@ -195,6 +195,13 @@ void MainWindow::on_action_New_triggered()
                 break;
             }
 
+            case EMeasures_t::eCA:
+            {
+                measIntstance = new CCaProject(mp_serialThread);
+                ui->tbMain->addTab(measIntstance, "Untitled* (CA)");
+                break;
+            }
+
             default:
             {
                 qWarning() << "Choosen unknown measure method, forgot to add?";

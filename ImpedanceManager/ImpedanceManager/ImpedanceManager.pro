@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     cserialthread.cpp \
     doublevalidator.cpp \
     ccvproject.cpp \
-    caboutdialog.cpp
+    caboutdialog.cpp \
+    ccaproject.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -40,7 +41,8 @@ HEADERS  += mainwindow.h \
     doublevalidator.h \
     changelog.h \
     ccvproject.h \
-    caboutdialog.h
+    caboutdialog.h \
+    ccaproject.h
 
 FORMS    += mainwindow.ui \
     csettingsdialog.ui \

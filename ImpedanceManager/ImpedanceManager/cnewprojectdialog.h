@@ -34,6 +34,8 @@ private slots:
 
     void on_rbBioFet_clicked(bool checked);
 
+    void on_rbCa_clicked(bool checked);
+
 private:
     Ui::CNewProjectDialog *ui;
 

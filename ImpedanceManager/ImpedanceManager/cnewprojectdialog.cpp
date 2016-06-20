@@ -28,6 +28,8 @@ void CNewProjectDialog::on_buttonBox_accepted()
         *mp_measure = EMeasures_t::eEIS;
     else if (ui->rbCv->isChecked())
         *mp_measure = EMeasures_t::eCV;
+    else if (ui->rbCa->isChecked())
+        *mp_measure = EMeasures_t::eCA;
 }
 
 void CNewProjectDialog::on_rbEis_clicked(bool checked)
@@ -58,4 +60,10 @@ void CNewProjectDialog::on_rbBioFet_clicked(bool checked)
 {
     if (checked)
         ui->lStatus->setText("BIOFet transistor");
+}
+
+void CNewProjectDialog::on_rbCa_clicked(bool checked)
+{
+    if (checked)
+        ui->lStatus->setText("Chronoamperography");
 }
