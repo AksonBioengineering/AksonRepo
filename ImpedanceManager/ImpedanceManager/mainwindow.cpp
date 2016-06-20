@@ -53,8 +53,8 @@ void MainWindow::initComponents()
     qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
-    m_appVersion.ver8[1] = 3;         // new functionalities
-    m_appVersion.ver8[0] = 1;         // changes to existing functionalities
+    m_appVersion.ver8[1] = 4;         // new functionalities
+    m_appVersion.ver8[0] = 0;         // changes to existing functionalities
     setWindowTitle(APPNAME + getAppVersion());
 
     QString settingsFile = QApplication::applicationDirPath() + "/settings.xms";
