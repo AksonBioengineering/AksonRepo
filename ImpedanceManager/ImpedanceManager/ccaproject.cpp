@@ -11,7 +11,7 @@ CCaProject::CCaProject(CSerialThread* serialThread, QWidget* parent) :
     mp_serialThread = serialThread;
     updateTree();
 
-   /* // testing
+    /*// testing
     union32_t x;
     union32_t y;
     x.idFl = 0.5;
@@ -20,6 +20,10 @@ CCaProject::CCaProject(CSerialThread* serialThread, QWidget* parent) :
 
     x.idFl = 2;
     y.idFl = 300;
+    on_received_giveMeasChunkCa(y, x);
+
+    x.idFl = 5;
+    y.idFl = 250;
     on_received_giveMeasChunkCa(y, x);
 
     insertLabels();*/
@@ -175,8 +179,8 @@ void CCaProject::takeMeasure()
         badParameters += m_lePotential.text() + "\n";
 
     quint16 measTime = (quint16)m_leMeasTime.text().toInt(&ok, 10);
-    if (!measTime)
-        badParameters += m_leMeasTime.text() + "\n";
+    //if (!measTime)
+       // badParameters += m_leMeasTime.text() + "\n";
 
     union32_t dt;
     dt.idFl = (float)m_le_dt.text().toDouble(&ok);

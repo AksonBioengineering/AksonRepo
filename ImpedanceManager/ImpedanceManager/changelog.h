@@ -5,6 +5,9 @@
 
 CHANGELOG:
 
+v 1.4.1
+ - User can type in 0 in potential field in CA measurement tab.
+
 v 1.4.0
  - Added CA functionality
 
