@@ -19,6 +19,9 @@ CSerialThread::CSerialThread(const QString& port, QObject *parent) :
 
     if (mp_serial->portName() != port)
         qWarning() << "Serial port" << port << "not found!";
+
+    // just to mark the last used port name
+    mp_serial->setPortName(port);
 }
 
 CSerialThread::~CSerialThread()
@@ -40,6 +43,7 @@ void CSerialThread::run()
         emit openPort(1);
         qWarning() << "Cannot open serial port" << mp_serial->portName();
         exit(1);
+        return;
     }
 
     mp_RxTimeoutTimer = new QTimer();
@@ -336,6 +340,38 @@ void CSerialThread::frameReady()
                 break;
             }
 
+            // DPV
+
+            case ESerialCommand_t::e_takeMeasDpv: // answer
+            {
+                qDebug() << "SERIAL: Answer for e_takeMeasDpv";
+                emit received_takeMeasDpv((bool)frame.m_data[0]);
+                break;
+            }
+
+            case ESerialCommand_t::e_giveMeasChunkDpv: // command
+            {
+                union32_t current;
+                union32_t voltage;
+                quint32 i = 0;
+
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    current.id8[k] = frame.m_data[i];
+
+                for (size_t k = 0; k < sizeof(union32_t); i++, k++)
+                    voltage.id8[k] = frame.m_data[i];
+
+                emit received_giveMeasChunkDpv(current, voltage);
+                break;
+            }
+
+            case ESerialCommand_t::e_endMeasDpv: // command
+            {
+                send_endMeasDpv();
+                emit received_endMeasDpv();
+                break;
+            }
+
             // UNKNOWN
 
             default:
@@ -430,6 +466,39 @@ void CSerialThread::on_send_takeMeasCa( const qint16& potential,
     sendData(ESerialCommand_t::e_takeMeasCa, sendArr, true);
 }
 
+void CSerialThread::on_send_takeMeasDpv( const qint16&  qp,
+                                         const quint16& qt,
+                                         const quint32& pn,
+                                         const quint16& pa,
+                                         const quint16& pp,
+                                         const quint16& pw,
+                                         const qint16&  ps)
+{
+    QByteArray sendArr;
+    for (quint32 i = 0; i < sizeof(qint16); i++)
+        sendArr.append((quint8)(qp >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(qt >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(quint32); i++)
+        sendArr.append((quint8)(pn >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(pa >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(pp >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(quint16); i++)
+        sendArr.append((quint8)(pw >> (i * 8)) & 0xFF);
+
+    for (quint32 i = 0; i < sizeof(qint16); i++)
+        sendArr.append((quint8)(ps >> (i * 8)) & 0xFF);
+
+    sendData(ESerialCommand_t::e_takeMeasDpv, sendArr, true);
+}
+
 void CSerialThread::send_endMeasEis()
 {
     QByteArray sendArr;
@@ -446,6 +515,12 @@ void CSerialThread::send_endMeasCa()
 {
     QByteArray sendArr;
     sendData(ESerialCommand_t::e_endMeasCa, sendArr, false);
+}
+
+void CSerialThread::send_endMeasDpv()
+{
+    QByteArray sendArr;
+    sendData(ESerialCommand_t::e_endMeasDpv, sendArr, false);
 }
 
 void CSerialThread::updateSerialPort(const QString& port)

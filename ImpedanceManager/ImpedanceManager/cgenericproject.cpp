@@ -133,7 +133,21 @@ void CGenericProject::updateTree()
 
 int CGenericProject::saveToCsv(QIODevice* device)
 {
+    Q_ASSERT(device);
+
     qCritical() << "ERROR: Base class saveToCsv method called!";
+    return -10;
+}
+
+int CGenericProject::saveProjectAs(QFile& file)
+{
+    qCritical() << "ERROR: Base class saveProjectAs method called for file" + file.fileName();
+    return -10;
+}
+
+int CGenericProject::openProject(QFile& file)
+{
+    qCritical() << "ERROR: Base class openProject method called for file" + file.fileName();
     return -10;
 }
 

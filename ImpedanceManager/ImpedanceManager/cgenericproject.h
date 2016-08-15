@@ -12,6 +12,7 @@
 #include "MeasureUtility.h"
 #include "cserialthread.h"
 #include "doublevalidator.h"
+#include "cprojectmanager.h"
 
 using namespace MeasureUtility;
 
@@ -36,8 +37,13 @@ public:
     virtual void zoomToPlot();
 
     virtual int saveToCsv(QIODevice* device);
+    virtual int saveProjectAs(QFile& file);
+    virtual int openProject(QFile& file);
 
     void toggleLabels();
+
+    const QString& workingFile(){ return fileName; }
+    void setWorkingFile(const QString& file) { fileName = file; }
 
 signals:
     void measureStarted();
@@ -56,8 +62,9 @@ private:
     virtual void initPlot();
     virtual void initFields();
     virtual void updateTree();
-
     virtual int insertLabels();
+
+    QString fileName = NULL;
 
 protected:
     void autoScalePlot();

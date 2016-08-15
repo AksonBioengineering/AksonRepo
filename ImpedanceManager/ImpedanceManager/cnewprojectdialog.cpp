@@ -30,6 +30,8 @@ void CNewProjectDialog::on_buttonBox_accepted()
         *mp_measure = EMeasures_t::eCV;
     else if (ui->rbCa->isChecked())
         *mp_measure = EMeasures_t::eCA;
+    else if (ui->rbDpv->isChecked())
+        *mp_measure = EMeasures_t::eDPV;
 }
 
 void CNewProjectDialog::on_rbEis_clicked(bool checked)

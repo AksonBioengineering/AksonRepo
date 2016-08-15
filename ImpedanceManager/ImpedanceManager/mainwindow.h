@@ -12,6 +12,7 @@
 #include "ceisproject.h"
 #include "ccvproject.h"
 #include "ccaproject.h"
+#include "cdpvproject.h"
 
 #include "csettingsdialog.h"
 #include "cnewprojectdialog.h"
@@ -33,7 +34,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    MainWindow(const QString& fileToOpen, QWidget *parent = 0);
     ~MainWindow();
 
 signals:
@@ -68,8 +69,24 @@ private slots:
 
     void on_action_About_triggered();
 
+    void on_action_Save_triggered();
+
+    void on_action_Save_as_triggered();
+
+    void on_action_Open_triggered();
+
 private:
     void saveCsvFile(const QString& fileName);
+    const QString getNameForSave();
+    const QString getNameForOpen();
+    int saveProject(const QString& fileName);
+    void openProject(const QString& fileName);
+    QString getAppVersion();
+    void initComponents();
+    CGenericProject* currentMeasObject(const int& index);
+    void setMachineState(EMachineState_t state);
+    EMachineState_t& machineState();
+    void checkCurrentTab(int index);
 
     Ui::MainWindow *ui;
 
@@ -80,12 +97,6 @@ private:
     };
     version_t m_appVersion;
     EMachineState_t m_machineState;
-
-    QString getAppVersion();
-    void initComponents();
-    CGenericProject* currentMeasObject(const int& index);
-    void setMachineState(EMachineState_t state);
-    EMachineState_t& machineState();
 
     CSerialThread* mp_serialThread;
     CGenericProject* mp_dummyProject;

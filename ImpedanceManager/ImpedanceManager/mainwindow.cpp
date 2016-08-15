@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(const QString& fileToOpen, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -27,6 +27,9 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(at_mp_SerialThread_rxTimeout(const int&)), Qt::UniqueConnection);
 
     this->setWindowState(Qt::WindowMaximized);
+
+    if (fileToOpen != NULL)
+        openProject(fileToOpen);
 }
 
 MainWindow::~MainWindow()
@@ -64,6 +67,7 @@ void MainWindow::initComponents()
     mp_serialThread = new CSerialThread(CSettingsManager::instance()->paramValue(XML_FIELD_PORT));
     mp_serialThread->moveToThread(mp_serialThread);
 
+    checkCurrentTab(-1);
     mp_dummyProject = NULL;
 }
 
@@ -177,7 +181,7 @@ void MainWindow::on_action_New_triggered()
 
     if (newDial.exec())
     {
-        qDebug() << "selected measure:" << (int)*newMeasure;
+        qDebug() << "New measure enum:" << (int)*newMeasure;
 
         switch (*newMeasure)
         {
@@ -199,6 +203,13 @@ void MainWindow::on_action_New_triggered()
             {
                 measIntstance = new CCaProject(mp_serialThread);
                 ui->tbMain->addTab(measIntstance, "Untitled* (CA)");
+                break;
+            }
+
+            case EMeasures_t::eDPV:
+            {
+                measIntstance = new CDpvProject(mp_serialThread);
+                ui->tbMain->addTab(measIntstance, "Untitled* (DPV)");
                 break;
             }
 
@@ -237,15 +248,7 @@ void MainWindow::on_tbMain_currentChanged(int index)
     //qDebug() << "current:" << ui->tbMain->widget(index)->metaObject()->className();
     qDebug() << "Current index changed" << index;
 
-    if (index >= 0) // otherwise no tabs left to select
-    {
-        // disconnect all
-        for (int i = 0; i < ui->tbMain->count(); i++)
-            currentMeasObject(i)->changeConnections(false);
-
-        // and connect the current one
-        currentMeasObject(index)->changeConnections(true);
-    }
+    checkCurrentTab(index);
 }
 
 void MainWindow::on_tbMain_objectNameChanged(const QString &objectName)
@@ -399,7 +402,7 @@ void MainWindow::saveCsvFile(const QString& fileName)
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
-        QMessageBox::warning(this, tr("Oven Manager"),
+        QMessageBox::warning(this, tr("Impedance Manager"),
                              tr("Cannot save file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -430,6 +433,96 @@ void MainWindow::saveCsvFile(const QString& fileName)
     }
 }
 
+const QString MainWindow::getNameForSave()
+{
+    if(!(int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
+    {
+        qCritical() << "No measure project opened. No project saved";
+        return NULL;
+    }
+
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setDirectory(QDir::currentPath());
+    dialog.setWindowTitle("Save project as...");
+    dialog.setNameFilter(tr("Impedance Manager Project files (*.imp)"));
+    dialog.setViewMode(QFileDialog::Detail);
+
+    QStringList fileNames;
+    if(dialog.exec())
+        fileNames = dialog.selectedFiles();
+
+    if (fileNames.length() > 1)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("File save error!");
+        msgBox.setInformativeText("Cannot select multiple files!");
+        msgBox.exec();
+        return NULL;
+    }
+    else if (0 == fileNames.length())
+        return NULL;
+
+    if (!fileNames[0].endsWith(".imp"))
+        fileNames[0].append(".imp");
+
+    return fileNames[0];
+}
+
+const QString MainWindow::getNameForOpen()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Profile File"),
+                                                    QDir::currentPath(),
+                                                    tr("IMP Files (*.imp)"));
+    return fileName;
+}
+
+int MainWindow::saveProject(const QString& fileName)
+{
+    QFile file(fileName);
+    int index = ui->tbMain->currentIndex();
+
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, tr("Impedance Manager"),
+                             tr("Cannot save file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return -1;
+    }
+
+    if((int)currentMeasObject(index)->measureType())
+    {
+        if (!currentMeasObject(index)->saveProjectAs(file))
+        {
+            ui->statusBar->showMessage(QString("Project %1 saved successfuly").arg(fileName), 5000);
+            file.close();
+
+            // update tab
+            currentMeasObject(index)->setWorkingFile(fileName);
+            QFileInfo fi = fileName;
+            ui->tbMain->setTabText(index, fi.baseName());
+            return 0;
+        }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("File open error!");
+            msgBox.setInformativeText("Saving file failed!");
+            msgBox.exec();
+            file.close();
+            return -2;
+        }
+    }
+    else
+    {
+        qCritical() << "No measure project opened. No project saved!";
+    }
+
+    return -3;
+}
+
 void MainWindow::on_action_Points_labels_triggered()
 {
     if(!(int)currentMeasObject(ui->tbMain->currentIndex())->measureType())
@@ -458,4 +551,178 @@ void MainWindow::on_action_About_triggered()
     QTextStream in(&f);
     CAboutDialog aboutDial(APPNAME + getAppVersion(), in.readAll());
     aboutDial.exec();
+}
+
+void MainWindow::checkCurrentTab(int index)
+{
+    bool enableVar = false;
+
+    // check if any tab is opened, otherwise no tabs left to select
+    if (index >= 0)
+    {
+        // disconnect all
+        for (int i = 0; i < ui->tbMain->count(); i++)
+            currentMeasObject(i)->changeConnections(false);
+
+        // and connect the current one
+        currentMeasObject(index)->changeConnections(true);
+
+        // for action buttons
+        enableVar = true;
+    }
+
+    ui->action_Save->setEnabled(enableVar);
+    ui->action_Save_as->setEnabled(enableVar);
+}
+
+void MainWindow::on_action_Save_triggered()
+{
+    qDebug() << "Save pressed.";
+    int index = ui->tbMain->currentIndex();
+
+    // check if a measure tab is opened
+    if((int)currentMeasObject(index)->measureType())
+    {
+        QString workingFile = currentMeasObject(index)->workingFile();
+
+        // Now check either we are working on untitled document, or saved already
+        if (NULL == workingFile) // untitled, save as
+        {
+            workingFile = getNameForSave();
+
+            if (NULL == workingFile)
+            {
+                qWarning() << "Empty filename, project cannot be saved!";
+                return;
+            }
+        }
+
+        saveProject(workingFile);
+    }
+    else
+    {
+        qDebug() << "Cannot save, no measure type selected";
+    }
+}
+
+void MainWindow::on_action_Save_as_triggered()
+{
+    qDebug() << "Save as... pressed.";
+    int index = ui->tbMain->currentIndex();
+
+    // check if a measure tab is opened
+    if((int)currentMeasObject(index)->measureType())
+    {
+        // do save as...
+        QString workingFile = getNameForSave();
+
+        if (NULL == workingFile)
+        {
+            qWarning() << "Empty filename, project cannot be saved!";
+            return;
+        }
+
+        saveProject(workingFile);
+    }
+    else
+    {
+        qDebug() << "Cannot save, no measure type selected";
+    }
+}
+
+void MainWindow::openProject(const QString& fileName)
+{
+    // get measure type from the file
+    QFile file(fileName);
+
+    if(!file.exists())
+    {
+        qWarning() << "File " + fileName + " doesnt exist";
+        return;
+    }
+
+    if (fileName.isEmpty())
+    {
+        qWarning() << "File " + fileName + " is empty";
+        return;
+    }
+
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        qWarning() << "Cannot open " + fileName;
+        return;
+    }
+
+    QXmlStreamReader xr(&file);
+    while (!xr.atEnd())
+    {
+        if (xr.readNextStartElement())
+        {
+            if (xr.name() != "project")
+            {
+                if (xr.name().toString() == "measType")
+                {
+                    EMeasures_t* newMeasure = new EMeasures_t;
+                    CGenericProject* measIntstance = NULL;
+                    *newMeasure = (EMeasures_t)xr.readElementText().toInt();
+
+                    switch (*newMeasure)
+                    {
+                        case EMeasures_t::eEIS:
+                        {
+                            measIntstance = new CEisProject(mp_serialThread);
+                            break;
+                        }
+
+                        case EMeasures_t::eCV:
+                        {
+                            measIntstance = new CCvProject(mp_serialThread);
+                            break;
+                        }
+
+                        case EMeasures_t::eCA:
+                        {
+                            measIntstance = new CCaProject(mp_serialThread);
+                            break;
+                        }
+
+                        case EMeasures_t::eDPV:
+                        {
+                            measIntstance = new CDpvProject(mp_serialThread);
+                            break;
+                        }
+
+                        default:
+                        {
+                            qWarning() << "Choosen unknown measure method, forgot to add?";
+                        }
+                    }
+
+                    delete newMeasure;
+                    file.close();
+
+                    // update tab
+                    QFileInfo fi = fileName;
+                    ui->tbMain->addTab(measIntstance, fi.baseName());
+                    measIntstance->setWorkingFile(fileName);
+
+                    // read the fields
+                    measIntstance->openProject(file);
+                    return;
+                }
+            }
+        }
+    }
+
+    file.close();
+    return;
+}
+
+void MainWindow::on_action_Open_triggered()
+{
+    QString filename = getNameForOpen();
+    qDebug() << "Opening file " + filename;
+
+    if (filename != NULL)
+        openProject(filename);
 }

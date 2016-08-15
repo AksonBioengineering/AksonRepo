@@ -5,7 +5,7 @@
 
 namespace MeasureUtility
 {
-    enum class EMeasures_t { eDummy = 0, eEIS, eCV, eCA };
+    enum class EMeasures_t { eDummy = 0, eEIS, eCV, eCA, eDPV, eSWV };
     enum class EStepType_t { eLinear = 0, eLog };
     enum class EMachineState_t { eDisconnected = 0, eConnected, eConnecting, eMeasuring };
 

@@ -1,6 +1,7 @@
 #include "ceisproject.h"
 
-CEisProject::CEisProject(CSerialThread* serialThread, QWidget *parent) : CGenericProject(serialThread, parent)
+CEisProject::CEisProject(CSerialThread* serialThread, QWidget *parent) :
+    CGenericProject(serialThread, parent)
 {
     Q_ASSERT(serialThread);
     //Q_ASSERT(parent);

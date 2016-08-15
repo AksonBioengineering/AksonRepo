@@ -44,7 +44,7 @@ void CCaProject::initPlot()
     customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     customPlot->graph(0)->setName("CA measure");
 
-    m_upperXRange = 10; // time, 1h max
+    m_upperXRange = 3600; // time, 1h max
     m_lowerXRange = 0;
     m_upperYRange = 1000; // current
     m_lowerYRange = -1000;
@@ -175,12 +175,12 @@ void CCaProject::takeMeasure()
     QString badParameters;
 
     qint16 potential = (qint16)m_lePotential.text().toInt(&ok, 10);
-    if (!potential)
-        badParameters += m_lePotential.text() + "\n";
+    //if (!potential)
+        //badParameters += m_lePotential.text() + "\n";
 
     quint16 measTime = (quint16)m_leMeasTime.text().toInt(&ok, 10);
-    //if (!measTime)
-       // badParameters += m_leMeasTime.text() + "\n";
+    if (!measTime)
+        badParameters += m_leMeasTime.text() + "\n";
 
     union32_t dt;
     dt.idFl = (float)m_le_dt.text().toDouble(&ok);

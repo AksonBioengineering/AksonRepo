@@ -30,6 +30,12 @@ public:
         , e_takeMeasCa              = 0x08
         , e_giveMeasChunkCa         = 0x09
         , e_endMeasCa               = 0x0A
+        , e_takeMeasDpv             = 0x0B
+        , e_giveMeasChunkDpv        = 0x0C
+        , e_endMeasDpv              = 0x0D
+        , e_takeMeasSwv             = 0x0E
+        , e_giveMeasChunkSwv        = 0x0F
+        , e_endMeasSwv              = 0x10
         ,
 
     };
@@ -73,6 +79,11 @@ signals:
     void received_giveMeasChunkCa(const union32_t&, const union32_t&);  // ES
     void received_endMeasCa();                                          // ES
 
+    // DPV
+    void received_takeMeasDpv(const bool& ack);                         // IM
+    void received_giveMeasChunkDpv(const union32_t&, const union32_t&); // ES
+    void received_endMeasDpv();                                         // ES
+
 
 public slots:
     void on_readyRead();
@@ -97,6 +108,14 @@ public slots:
                              const quint16&,
                              const union32_t&);
 
+    void on_send_takeMeasDpv(const qint16&,
+                             const quint16&,
+                             const quint32&,
+                             const quint16&,
+                             const quint16&,
+                             const quint16&,
+                             const qint16&);
+
 private:
     qint16 getCrc(const QByteArray& bArray);
     qint16 getCrc(const ESerialFrame_t& frame);
@@ -110,6 +129,7 @@ private:
     void send_endMeasEis();
     void send_endMeasCv();
     void send_endMeasCa();
+    void send_endMeasDpv();
 
     QSerialPort* mp_serial;
     QByteArray m_sendBuffer;
