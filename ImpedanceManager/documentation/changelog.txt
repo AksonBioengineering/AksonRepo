@@ -1,5 +1,9 @@
 CHANGELOG:
 
+v 1.5.0
+ - Added DPV functionality
+ - Added Saving, saving as and opening (also argument passing) project files with *.imp extension. The project files work only for DPV method for now. Features need to be tested.
+
 v 1.4.1
  - User can type in 0 in potential field in CA measurement tab.
 
