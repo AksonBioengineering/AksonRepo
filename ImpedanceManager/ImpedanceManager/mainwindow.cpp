@@ -29,7 +29,12 @@ MainWindow::MainWindow(const QString& fileToOpen, QWidget *parent) :
     this->setWindowState(Qt::WindowMaximized);
 
     if (fileToOpen != NULL)
+    {
         openProject(fileToOpen);
+
+        // update title
+        setWindowTitle(APPNAME + getAppVersion() + " - " + fileToOpen);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -56,7 +61,7 @@ void MainWindow::initComponents()
     qRegisterMetaType< MeasureUtility::EStepType_t >("MeasureUtility::EStepType_t");
 
     m_appVersion.ver8[2] = 1;         // Big new functionalities
-    m_appVersion.ver8[1] = 4;         // new functionalities
+    m_appVersion.ver8[1] = 5;         // new functionalities
     m_appVersion.ver8[0] = 1;         // changes to existing functionalities
     setWindowTitle(APPNAME + getAppVersion());
 
@@ -503,6 +508,9 @@ int MainWindow::saveProject(const QString& fileName)
             currentMeasObject(index)->setWorkingFile(fileName);
             QFileInfo fi = fileName;
             ui->tbMain->setTabText(index, fi.baseName());
+
+            // update bar title
+            setWindowTitle(APPNAME + getAppVersion() + " - " + fileName);
             return 0;
         }
         else
@@ -569,6 +577,10 @@ void MainWindow::checkCurrentTab(int index)
 
         // for action buttons
         enableVar = true;
+
+        // get project filename and update title bar
+        setWindowTitle(APPNAME + getAppVersion() + " - " +
+                       currentMeasObject(index)->workingFile());
     }
 
     ui->action_Save->setEnabled(enableVar);
@@ -663,32 +675,32 @@ void MainWindow::openProject(const QString& fileName)
                 if (xr.name().toString() == "measType")
                 {
                     EMeasures_t* newMeasure = new EMeasures_t;
-                    CGenericProject* measIntstance = NULL;
+                    CGenericProject* measInstance = NULL;
                     *newMeasure = (EMeasures_t)xr.readElementText().toInt();
 
                     switch (*newMeasure)
                     {
                         case EMeasures_t::eEIS:
                         {
-                            measIntstance = new CEisProject(mp_serialThread);
+                            measInstance = new CEisProject(mp_serialThread);
                             break;
                         }
 
                         case EMeasures_t::eCV:
                         {
-                            measIntstance = new CCvProject(mp_serialThread);
+                            measInstance = new CCvProject(mp_serialThread);
                             break;
                         }
 
                         case EMeasures_t::eCA:
                         {
-                            measIntstance = new CCaProject(mp_serialThread);
+                            measInstance = new CCaProject(mp_serialThread);
                             break;
                         }
 
                         case EMeasures_t::eDPV:
                         {
-                            measIntstance = new CDpvProject(mp_serialThread);
+                            measInstance = new CDpvProject(mp_serialThread);
                             break;
                         }
 
@@ -703,11 +715,14 @@ void MainWindow::openProject(const QString& fileName)
 
                     // update tab
                     QFileInfo fi = fileName;
-                    ui->tbMain->addTab(measIntstance, fi.baseName());
-                    measIntstance->setWorkingFile(fileName);
+                    ui->tbMain->addTab(measInstance, fi.baseName());
+                    measInstance->setWorkingFile(fileName);
 
                     // read the fields
-                    measIntstance->openProject(file);
+                    measInstance->openProject(file);
+
+                    // testing:
+                    //measInstance->takeMeasure();
                     return;
                 }
             }

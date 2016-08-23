@@ -1,5 +1,9 @@
 CHANGELOG:
 
+v 1.5.1
+  - For DPV technique PS * PN + PA cannot be higher than 1500 mV and lower than -1500 mV.
+  - Appending opened project filename to the title bar.
+
 v 1.5.0
  - Added DPV functionality
  - Added Saving, saving as and opening (also argument passing) project files with *.imp extension. The project files work only for DPV method for now. Features need to be tested.

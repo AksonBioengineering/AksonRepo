@@ -190,6 +190,7 @@ void CDpvProject::on_received_endMeasDpv()
 
 void CDpvProject::takeMeasure()
 {
+    const qint32 maxVoltage_mv = 1500;
     bool ok;
     QString badParameters;
 
@@ -206,6 +207,16 @@ void CDpvProject::takeMeasure()
     quint16 pp = (quint16)m_lePp.text().toInt(&ok, 10);
     quint16 pw = (quint16)m_lePw.text().toInt(&ok, 10);
     qint16 ps = (qint16)m_lePs.text().toInt(&ok, 10);
+
+    // check either waveform wont overcome 1.5 V
+    qint32 endVoltage_mv = ps * pn + pa;
+    if ( (endVoltage_mv > maxVoltage_mv) ||
+         (endVoltage_mv < (maxVoltage_mv * -1)) )
+    {
+        badParameters += "PS * PN + PA cannot be higher than " +
+                QString("%1").arg(maxVoltage_mv) + " mV and lower than -" +
+                QString("%1").arg(maxVoltage_mv) + " mV";
+    }
 
     if(badParameters.length())
     {
